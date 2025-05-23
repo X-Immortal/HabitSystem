@@ -23,6 +23,7 @@ void InitWindow::initWindow() {
     centralWidget->setStyleSheet("background-color: #e3e3e3;");
     centralWidget->setFixedSize(this->width(), this->height());
 
+
     QLabel *title = new QLabel("习惯打卡管理系统", centralWidget);
     title->setStyleSheet(
         "QLabel {"
