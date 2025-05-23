@@ -6,9 +6,12 @@
 #define SYSTEMWINDOW_H
 
 #include <QMainWindow>
+#include <QDialog>
 
 class SystemWindow : public QMainWindow {
     Q_OBJECT
+    QWidget *scrollContainer;
+    QDialog *addDialog;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -19,7 +22,11 @@ public:
 
 private:
     void initWindow();
+    void initText();
     void initButton();
+    void initScrollArea();
+    void loadCards();
+    void initDialog();
 };
 
 #endif //SYSTEMWINDOW_H

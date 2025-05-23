@@ -34,3 +34,8 @@ Date Date::getFirstDayOfWeek() {
     mktime(lo);
     return Ztm(*lo);
 }
+
+string Date::toString() const {
+    return to_string(year) + "年" + to_string(month) + "月" + to_string(day) + "日";
+}
+

@@ -6,6 +6,9 @@
 #define DATE_H
 
 #include <ctime>
+#include <string>
+
+using namespace std;
 
 class Date {
 public:
@@ -25,6 +28,8 @@ public:
 
     static Date today(); //获取系统当前日期
     static Date getFirstDayOfWeek();
+
+    string toString() const;
 };
 
 #endif //DATE_H
