@@ -180,8 +180,5 @@ void SystemWindow::loadCards() {
 }
 
 void SystemWindow::initDialog() {
-    addDialog = new QDialog(this);
-    addDialog->setWindowTitle("添加习惯");
-    addDialog->setFixedSize(300, 200);
-
+    addDialog = new AddDialog(this);
 }
