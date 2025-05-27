@@ -14,18 +14,18 @@ using namespace std;
 class WeeklyHabit : public Habit {
 public:
     int frequency; //每周需要打卡次数
-    int currentdoneweek; //已完成打卡周数
-    int wcurrent; //当前周打卡次数
-    Date currentweekfirstday;
-    vector<Date> DoneDates;
+    int finishedWeeks; //已完成打卡周数
+    int checkinTimes; //当前周打卡次数
+    Date firstDayOfThisWeek;
+    vector<Date> finishedDates;
 
     WeeklyHabit();
 
-    WeeklyHabit(string name1, string d, int WT, int fre);
+    WeeklyHabit(string name, string description, int WT, int frequency);
 
     void checkWeekTask();
 
-    void updateCurweek(); //检查是否为新的一周，若是，则更新
+    void updateCurrentWeek(); //检查是否为新的一周，若是，则更新
 
     bool complete() override;
 

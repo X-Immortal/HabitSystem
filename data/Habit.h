@@ -19,7 +19,7 @@ public:
 
     Habit();
 
-    Habit(string name1, string d, int T);
+    Habit(string name, string description, int target);
 
     int getTarget();
 

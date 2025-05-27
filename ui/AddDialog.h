@@ -44,6 +44,8 @@ private:
     void initEdit();
     void initComboBox();
     void initSpinBox();
+    void initButton();
+    void addHabit();
 };
 
 #endif //ADDDIALOG_H

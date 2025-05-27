@@ -3,12 +3,15 @@
 //
 
 #include "AddDialog.h"
+#include <QPushButton>
+#include "../data/HabitManager.h"
 
 AddDialog::AddDialog(QWidget *parent) : QDialog(parent) {
     initDialog();
     initEdit();
     initSpinBox();
     initComboBox();
+    initButton();
 }
 
 void AddDialog::initDialog() {
@@ -173,4 +176,35 @@ void AddDialog::initComboBox() {
     });
 }
 
+void AddDialog::initButton() {
+    QPushButton *confirmButton = new QPushButton("确定", this);
+    confirmButton->setGeometry(200, 470, 80, 20);
+    confirmButton->setStyleSheet(
+        "QPushButton {"
+        "   color: #000000;"
+        "   background-color: #f9f4f4;"
+        "   border: 1px solid #000000;"
+        "   font: 20px;"
+        "}"
+        "QPushButton:hover { background-color: #b0aeae; }"
+    );
 
+    QPushButton *cancelButton = new QPushButton("取消", this);
+    cancelButton->setGeometry(300, 470, 80, 20);
+    cancelButton->setStyleSheet(
+        "QPushButton {"
+        "   color: #000000;"
+        "   background-color: #f9f4f4;"
+        "   border: 1px solid #000000;"
+        "   font: 20px;"
+        "}"
+        "QPushButton:hover { background-color: #b0aeae; }"
+    );
+    connect(cancelButton, &QPushButton::clicked, this, &AddDialog::close);
+}
+
+void AddDialog::addHabit() {
+    string name = nameEdit->text().toStdString();
+    string description = descriptionEdit->toPlainText().toStdString();
+
+}

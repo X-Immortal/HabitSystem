@@ -6,8 +6,8 @@
 
 Habit::Habit() {}
 
-Habit::Habit(string name1, string d, int T) :
-name(name1), description(d), target(T), totalcurrent(0) {}
+Habit::Habit(string name, string description, int target) :
+name(name), description(description), target(target), totalcurrent(0) {}
 
 int Habit::getTarget() {
     return target;
