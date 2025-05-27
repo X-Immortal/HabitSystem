@@ -14,55 +14,6 @@ AddDialog::AddDialog(QWidget *parent) : QDialog(parent) {
     initButton();
 }
 
-void AddDialog::initDialog() {
-    this->setWindowTitle("添加习惯");
-    this->setFixedSize(400, 500);
-    this->setLayout(nullptr);
-
-}
-
-void AddDialog::initEdit() {
-    QLabel *nameLabel = new QLabel(this);
-    nameLabel->setGeometry(20, 50, 100, 30);
-    nameLabel->setText("名称");
-    nameLabel->setStyleSheet(
-        "QLabel {"
-        "   font: 20px #000000;"
-        "   background: transparent;"
-        "}"
-    );
-
-    nameEdit = new QLineEdit(this);
-    nameEdit->setGeometry(70, 50, 300, 30);
-    nameEdit->setStyleSheet(
-        "QLineEdit {"
-        "   border: 1px solid #000000;"
-        "   background-color: #FFFFFF;"
-        "   font: 20px;"
-        "}"
-    );
-
-    QLabel *descriptionLabel = new QLabel(this);
-    descriptionLabel->setGeometry(20, 100, 100, 30);
-    descriptionLabel->setText("描述");
-    descriptionLabel->setStyleSheet(
-        "QLabel {"
-        "   font: 20px #000000;"
-        "   background: transparent;"
-        "}"
-    );
-
-    descriptionEdit = new QTextEdit(this);
-    descriptionEdit->setGeometry(70, 100, 300, 200);
-    descriptionEdit->setStyleSheet(
-        "QTextEdit {"
-        "   border: 1px solid #000000;"
-        "   background-color: #FFFFFF;"
-        "   font: 20px;"
-        "}"
-    );
-}
-
 void AddDialog::DailyTarget::hide() const {
     assert(targetLabel && targetEdit);
     targetEdit->hide();
@@ -84,10 +35,111 @@ void AddDialog::WeeklyTarget::hide() const {
 }
 
 void AddDialog::WeeklyTarget::show() const {
+    assert(targetLabel && targetEdit && frequencyEdit && frequencyLabel);
     targetEdit->show();
     targetLabel->show();
     frequencyEdit->show();
     frequencyLabel->show();
+}
+
+bool AddDialog::Name::check() {
+    assert(nameEdit && prompt);
+    if (nameEdit->text().isEmpty()) {
+        prompt->show();
+        return false;
+    }
+    prompt->hide();
+    return true;
+}
+
+bool AddDialog::Description::check() {
+    assert(descriptionEdit && prompt);
+    if (descriptionEdit->toPlainText().isEmpty()) {
+        prompt->show();
+        return false;
+    }
+    prompt->hide();
+    return true;
+}
+
+bool AddDialog::Target::check() {
+    assert(typeBox && prompt);
+    if (typeBox->currentIndex() == -1) {
+        prompt->show();
+        return false;
+    }
+    prompt->hide();
+    return true;
+}
+
+
+void AddDialog::initDialog() {
+    this->setWindowTitle("添加习惯");
+    this->setFixedSize(400, 500);
+    this->setLayout(nullptr);
+}
+
+void AddDialog::initEdit() {
+    QLabel *nameLabel = new QLabel(this);
+    nameLabel->setGeometry(20, 50, 100, 30);
+    nameLabel->setText("名称");
+    nameLabel->setStyleSheet(
+        "QLabel {"
+        "   font: 20px #000000;"
+        "   background: transparent;"
+        "}"
+    );
+
+    name.nameEdit = new QLineEdit(this);
+    name.nameEdit->setGeometry(70, 50, 300, 30);
+    name.nameEdit->setStyleSheet(
+        "QLineEdit {"
+        "   border: 1px solid #000000;"
+        "   background-color: #FFFFFF;"
+        "   font: 20px;"
+        "}"
+    );
+
+    name.prompt = new QLabel("请输入习惯名称!", this);
+    name.prompt->setGeometry(80, 85, 100, 10);
+    name.prompt->setStyleSheet(
+        "QLabel {"
+        "   font: 10px;"
+        "   color: #FF0000;"
+        "   background: transparent;"
+        "}"
+    );
+
+
+    QLabel *descriptionLabel = new QLabel(this);
+    descriptionLabel->setGeometry(20, 100, 100, 30);
+    descriptionLabel->setText("描述");
+    descriptionLabel->setStyleSheet(
+        "QLabel {"
+        "   font: 20px #000000;"
+        "   background: transparent;"
+        "}"
+    );
+
+    description.descriptionEdit = new QTextEdit(this);
+    description.descriptionEdit->setGeometry(70, 100, 300, 200);
+    description.descriptionEdit->setStyleSheet(
+        "QTextEdit {"
+        "   border: 1px solid #000000;"
+        "   background-color: #FFFFFF;"
+        "   font: 20px;"
+        "}"
+    );
+
+    description.prompt = new QLabel("请输入习惯描述！", this);
+    description.prompt->setGeometry(80, 305, 100, 10);
+    description.prompt->setStyleSheet(
+        "QLabel {"
+        "   color: #FF0000;"
+        "   font: 10px;"
+        "   background-color: transparent;"
+        "}"
+    );
 }
 
 void AddDialog::initSpinBox() {
@@ -152,11 +204,11 @@ void AddDialog::initSpinBox() {
 
 
 void AddDialog::initComboBox() {
-    typeBox = new QComboBox(this);
-    typeBox->setGeometry(70, 320, 300, 30);
-    typeBox->setPlaceholderText("习惯类型");
-    typeBox->addItems({ "每日习惯", "每周习惯"});
-    typeBox->setStyleSheet(
+    target.typeBox = new QComboBox(this);
+    target.typeBox->setGeometry(70, 320, 300, 30);
+    target.typeBox->setPlaceholderText("习惯类型");
+    target.typeBox->addItems({ "每日习惯", "每周习惯"});
+    target.typeBox->setStyleSheet(
         "QComboBox{"
         "   border: 1px solid #000000;"
         "   padding: 5px 10px;"
@@ -165,7 +217,17 @@ void AddDialog::initComboBox() {
         "QComboBox::drop-down { width: 20px; }"
     );
 
-    connect(typeBox, &QComboBox::currentIndexChanged, [=](int index) {
+    target.prompt = new QLabel("请选择习惯类型！", this);
+    target.prompt->setGeometry(80, 355, 100, 10);
+    target.prompt->setStyleSheet(
+        "QLabel {"
+        "   color: #FF0000;"
+        "   font: 10px;"
+        "   background-color: transparent;"
+        "}"
+    );
+
+    connect(target.typeBox, &QComboBox::currentIndexChanged, [=](int index) {
         if (index == 0) {
             weeklyTarget.hide();
             dailyTarget.show();
@@ -204,7 +266,11 @@ void AddDialog::initButton() {
 }
 
 void AddDialog::addHabit() {
-    string name = nameEdit->text().toStdString();
-    string description = descriptionEdit->toPlainText().toStdString();
+    if (name.nameEdit->text().isEmpty()) {
+
+    }
+
+    string name = this->name.nameEdit->text().toStdString();
+    string description = this->description.descriptionEdit->toPlainText().toStdString();
 
 }

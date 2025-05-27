@@ -16,16 +16,36 @@
 class AddDialog : public QDialog {
     Q_OBJECT
 
-    QLineEdit *nameEdit;
-    QTextEdit *descriptionEdit;
-    QComboBox *typeBox;
+    struct Name {
+        QLineEdit *nameEdit;
+        QLabel *prompt;
+
+        bool check();
+    } name;
+
+    struct Description {
+        QTextEdit *descriptionEdit;
+        QLabel *prompt;
+
+        bool check();
+    } description;
+
+    struct Target {
+        QComboBox *typeBox;
+        QLabel *prompt;
+
+        bool check();
+    } target;
+
     struct DailyTarget {
         QLabel *targetLabel;
         QSpinBox *targetEdit;
 
         void hide() const;
+
         void show() const;
     } dailyTarget;
+
     struct WeeklyTarget {
         QLabel *targetLabel;
         QSpinBox *targetEdit;
@@ -33,6 +53,7 @@ class AddDialog : public QDialog {
         QSpinBox *frequencyEdit;
 
         void hide() const;
+
         void show() const;
     } weeklyTarget;
 
@@ -41,10 +62,15 @@ public:
 
 private:
     void initDialog();
+
     void initEdit();
+
     void initComboBox();
+
     void initSpinBox();
+
     void initButton();
+
     void addHabit();
 };
 

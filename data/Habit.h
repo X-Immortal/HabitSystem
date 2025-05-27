@@ -14,7 +14,7 @@ public:
     string name;
     string description;
     int target;
-    int totalcurrent;
+    int finishedDays;
     bool completed = 0;
 
     Habit();

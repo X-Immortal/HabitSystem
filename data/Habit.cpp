@@ -7,14 +7,14 @@
 Habit::Habit() {}
 
 Habit::Habit(string name, string description, int target) :
-name(name), description(description), target(target), totalcurrent(0) {}
+name(name), description(description), target(target), finishedDays(0) {}
 
 int Habit::getTarget() {
     return target;
 }
 
 int Habit::getCurrent() {
-    return totalcurrent;
+    return finishedDays;
 }
 
 Habit::~Habit() {}

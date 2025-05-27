@@ -13,11 +13,11 @@ using namespace std;
 
 class DailyHabit : public Habit {
 public:
-    vector<Date> DoneDates;
+    vector<Date> finishedDates;
 
     DailyHabit();
 
-    DailyHabit(string name1, string d, int T);
+    DailyHabit(string name, string description, int target);
 
     bool complete() override;
 
