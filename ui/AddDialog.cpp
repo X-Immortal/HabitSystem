@@ -4,7 +4,9 @@
 
 #include "AddDialog.h"
 #include <QPushButton>
+#include "../data/DailyHabit.h"
 #include "../data/HabitManager.h"
+#include "../data/WeeklyHabit.h"
 
 AddDialog::AddDialog(QWidget *parent) : QDialog(parent) {
     initDialog();
@@ -18,6 +20,7 @@ void AddDialog::DailyTarget::hide() const {
     assert(targetLabel && targetEdit);
     targetEdit->hide();
     targetLabel->hide();
+    prompt->hide();
 }
 
 void AddDialog::DailyTarget::show() const {
@@ -30,8 +33,10 @@ void AddDialog::WeeklyTarget::hide() const {
     assert(targetLabel && targetEdit && frequencyEdit && frequencyLabel);
     targetEdit->hide();
     targetLabel->hide();
+    targetPrompt->hide();
     frequencyEdit->hide();
     frequencyLabel->hide();
+    frequencyPrompt->hide();
 }
 
 void AddDialog::WeeklyTarget::show() const {
@@ -42,7 +47,7 @@ void AddDialog::WeeklyTarget::show() const {
     frequencyLabel->show();
 }
 
-bool AddDialog::Name::check() {
+bool AddDialog::Name::check() const {
     assert(nameEdit && prompt);
     if (nameEdit->text().isEmpty()) {
         prompt->show();
@@ -52,7 +57,7 @@ bool AddDialog::Name::check() {
     return true;
 }
 
-bool AddDialog::Description::check() {
+bool AddDialog::Description::check() const {
     assert(descriptionEdit && prompt);
     if (descriptionEdit->toPlainText().isEmpty()) {
         prompt->show();
@@ -62,7 +67,7 @@ bool AddDialog::Description::check() {
     return true;
 }
 
-bool AddDialog::Target::check() {
+bool AddDialog::Target::check() const {
     assert(typeBox && prompt);
     if (typeBox->currentIndex() == -1) {
         prompt->show();
@@ -72,11 +77,37 @@ bool AddDialog::Target::check() {
     return true;
 }
 
+bool AddDialog::DailyTarget::check() const {
+    assert(targetEdit && prompt);
+    if (targetEdit->value() <= 0) {
+        prompt->show();
+        return false;
+    }
+    prompt->hide();
+    return true;
+}
+
+bool AddDialog::WeeklyTarget::check() const {
+    assert(targetEdit && frequencyEdit && targetPrompt && frequencyPrompt);
+    if (targetEdit->value() <= 0) {
+        targetPrompt->show();
+    }
+    if (frequencyEdit->value() <= 0) {
+        frequencyPrompt->show();
+    }
+    if (targetEdit->value() <= 0 || frequencyEdit->value() <= 0) {
+        return false;
+    }
+    targetPrompt->hide();
+    frequencyPrompt->hide();
+    return true;
+}
 
 void AddDialog::initDialog() {
     this->setWindowTitle("添加习惯");
     this->setFixedSize(400, 500);
     this->setLayout(nullptr);
+    this->setStyleSheet("background-color: #e3e3e3;");
 }
 
 void AddDialog::initEdit() {
@@ -85,7 +116,8 @@ void AddDialog::initEdit() {
     nameLabel->setText("名称");
     nameLabel->setStyleSheet(
         "QLabel {"
-        "   font: 20px #000000;"
+        "   font: 20px;"
+        "   color: #000000;"
         "   background: transparent;"
         "}"
     );
@@ -97,6 +129,7 @@ void AddDialog::initEdit() {
         "   border: 1px solid #000000;"
         "   background-color: #FFFFFF;"
         "   font: 20px;"
+        "   color: black;"
         "}"
     );
 
@@ -109,6 +142,7 @@ void AddDialog::initEdit() {
         "   background: transparent;"
         "}"
     );
+    name.prompt->hide();
 
 
     QLabel *descriptionLabel = new QLabel(this);
@@ -116,7 +150,8 @@ void AddDialog::initEdit() {
     descriptionLabel->setText("描述");
     descriptionLabel->setStyleSheet(
         "QLabel {"
-        "   font: 20px #000000;"
+        "   font: 20px;"
+        "   color: #000000;"
         "   background: transparent;"
         "}"
     );
@@ -128,6 +163,7 @@ void AddDialog::initEdit() {
         "   border: 1px solid #000000;"
         "   background-color: #FFFFFF;"
         "   font: 20px;"
+        "   color: black;"
         "}"
     );
 
@@ -140,6 +176,7 @@ void AddDialog::initEdit() {
         "   background-color: transparent;"
         "}"
     );
+    description.prompt->hide();
 }
 
 void AddDialog::initSpinBox() {
@@ -148,7 +185,8 @@ void AddDialog::initSpinBox() {
     dailyTarget.targetLabel->setText("目标天数");
     dailyTarget.targetLabel->setStyleSheet(
         "QLabel {"
-        "   font: 20px #000000;"
+        "   font: 20px;"
+        "   color: #000000;"
         "   background: transparent;"
         "}"
     );
@@ -157,7 +195,27 @@ void AddDialog::initSpinBox() {
     dailyTarget.targetEdit->setGeometry(150, 370, 70, 30);
     dailyTarget.targetEdit->setStyleSheet(
         "QSpinBox {"
-        "   font: 20px #000000;"
+        "   background-color: white;"
+        "   font: 20px;"
+        "   color: #000000;"
+        "   border: 1px solid #000000;"
+        "   padding-right: 15px;"
+        "}"
+        "QSpinBox::up-button {"
+        "   width: 20px"
+        "}"
+        "QSpinBox::down-button {"
+        "   width: 20px;"
+        "}"
+    );
+
+    dailyTarget.prompt = new QLabel("请输入目标天数！", this);
+    dailyTarget.prompt->setGeometry(230, 380, 100, 10);
+    dailyTarget.prompt->setStyleSheet(
+        "QLabel {"
+        "   color: #FF0000;"
+        "   font: 10px;"
+        "   background: transparent;"
         "}"
     );
 
@@ -168,7 +226,8 @@ void AddDialog::initSpinBox() {
     weeklyTarget.targetLabel->setText("目标周数");
     weeklyTarget.targetLabel->setStyleSheet(
         "QLabel {"
-        "   font: 20px #000000;"
+        "   font: 20px;"
+        "   color: #000000;"
         "   background: transparent;"
         "}"
     );
@@ -177,7 +236,27 @@ void AddDialog::initSpinBox() {
     weeklyTarget.targetEdit->setGeometry(150, 370, 70, 30);
     weeklyTarget.targetEdit->setStyleSheet(
         "QSpinBox {"
-        "   font: 20px #000000;"
+        "   background-color: white;"
+        "   font: 20px;"
+        "   color: #000000;"
+        "   border: 1px solid #000000;"
+        "   padding-right: 15px;"
+        "}"
+        "QSpinBox::up-button {"
+        "   width: 20px"
+        "}"
+        "QSpinBox::down-button {"
+        "   width: 20px;"
+        "}"
+    );
+
+    weeklyTarget.targetPrompt = new QLabel("请输入目标周数！", this);
+    weeklyTarget.targetPrompt->setGeometry(160, 405, 100, 10);
+    weeklyTarget.targetPrompt->setStyleSheet(
+        "QLabel {"
+        "   color: #FF0000;"
+        "   font: 10px;"
+        "   background: transparent;"
         "}"
     );
 
@@ -186,7 +265,8 @@ void AddDialog::initSpinBox() {
     weeklyTarget.frequencyLabel->setText("每周打卡次数");
     weeklyTarget.frequencyLabel->setStyleSheet(
         "QLabel {"
-        "   font: 20px #000000;"
+        "   font: 20px;"
+        "   color: #000000;"
         "   background: transparent;"
         "}"
     );
@@ -195,7 +275,27 @@ void AddDialog::initSpinBox() {
     weeklyTarget.frequencyEdit->setGeometry(200, 420, 70, 30);
     weeklyTarget.frequencyEdit->setStyleSheet(
         "QSpinBox {"
-        "   font: 20px #000000;"
+        "   background-color: white;"
+        "   font: 20px;"
+        "   color: #000000;"
+        "   border: 1px solid #000000;"
+        "   padding-right: 15px;"
+        "}"
+        "QSpinBox::up-button {"
+        "   width: 20px"
+        "}"
+        "QSpinBox::down-button {"
+        "   width: 20px;"
+        "}"
+    );
+
+    weeklyTarget.frequencyPrompt = new QLabel("请输入每周打卡次数！", this);
+    weeklyTarget.frequencyPrompt->setGeometry(210, 450, 100, 10);
+    weeklyTarget.frequencyPrompt->setStyleSheet(
+        "QLabel {"
+        "   color: #FF0000;"
+        "   font: 10px;"
+        "   background: transparent;"
         "}"
     );
 
@@ -207,14 +307,18 @@ void AddDialog::initComboBox() {
     target.typeBox = new QComboBox(this);
     target.typeBox->setGeometry(70, 320, 300, 30);
     target.typeBox->setPlaceholderText("习惯类型");
-    target.typeBox->addItems({ "每日习惯", "每周习惯"});
+    target.typeBox->addItems({"每日习惯", "每周习惯"});
     target.typeBox->setStyleSheet(
         "QComboBox{"
         "   border: 1px solid #000000;"
         "   padding: 5px 10px;"
-        "   font: 20px;"
+        "   font: 19px;"
+        "   color: #000000;"
         "}"
         "QComboBox::drop-down { width: 20px; }"
+        "QComboBox QAbstractItemView::item {"
+        "   color: black;"
+        "}"
     );
 
     target.prompt = new QLabel("请选择习惯类型！", this);
@@ -226,6 +330,7 @@ void AddDialog::initComboBox() {
         "   background-color: transparent;"
         "}"
     );
+    target.prompt->hide();
 
     connect(target.typeBox, &QComboBox::currentIndexChanged, [=](int index) {
         if (index == 0) {
@@ -250,6 +355,7 @@ void AddDialog::initButton() {
         "}"
         "QPushButton:hover { background-color: #b0aeae; }"
     );
+    connect(confirmButton, &QPushButton::clicked, this, &AddDialog::addHabit);
 
     QPushButton *cancelButton = new QPushButton("取消", this);
     cancelButton->setGeometry(300, 470, 80, 20);
@@ -266,11 +372,26 @@ void AddDialog::initButton() {
 }
 
 void AddDialog::addHabit() {
-    if (name.nameEdit->text().isEmpty()) {
+    if (!name.check() | !description.check() | !target.check()) {
+        return;
+    }
 
+    if (target.typeBox->currentIndex() == 0) {
+        if (!dailyTarget.check()) {
+            return;
+        }
+    } else {
+        if (!weeklyTarget.check()) {
+            return;
+        }
     }
 
     string name = this->name.nameEdit->text().toStdString();
     string description = this->description.descriptionEdit->toPlainText().toStdString();
 
+    if (target.typeBox->currentIndex() == 0) {
+        int targetDays = dailyTarget.targetEdit->value();
+        DailyHabit *dailyHabit = new DailyHabit(name, description, targetDays);
+        HabitManager::add(dailyHabit);
+    }
 }

@@ -117,7 +117,7 @@ void HabitManager::saveToFile() {
     }
     out << Habits.size() << endl;
     for (Habit *habit: Habits) {
-        habit->savetofile(out);
+        habit->saveToFile(out);
     }
     cout << "数据已保存！" << endl;
 }
@@ -152,7 +152,7 @@ void HabitManager::loadFromFile() {
         else if (type == "WeeklyHabit")
             habit = new WeeklyHabit();
         if (habit) {
-            habit->loadfromfile(in);
+            habit->loadFromFile(in);
             Habits.push_back(habit);
         }
     }

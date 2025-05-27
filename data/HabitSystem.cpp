@@ -5,7 +5,7 @@
 using namespace std;
 
 int main() {
-    HabitManager manager("C:\\Users\\15591\\CLionProjects\\untitled2\\habit.txt");
+    HabitManager manager(".\\file\\habits.txt");
     manager.loadFromFile();
     while (true) {
         manager.showMenu();

@@ -20,41 +20,48 @@ class AddDialog : public QDialog {
         QLineEdit *nameEdit;
         QLabel *prompt;
 
-        bool check();
+        bool check() const;
     } name;
 
     struct Description {
         QTextEdit *descriptionEdit;
         QLabel *prompt;
 
-        bool check();
+        bool check() const;
     } description;
 
     struct Target {
         QComboBox *typeBox;
         QLabel *prompt;
 
-        bool check();
+        bool check() const;
     } target;
 
     struct DailyTarget {
         QLabel *targetLabel;
         QSpinBox *targetEdit;
+        QLabel *prompt;
 
         void hide() const;
 
         void show() const;
+
+        [[nodiscard]] bool check() const;
     } dailyTarget;
 
     struct WeeklyTarget {
         QLabel *targetLabel;
         QSpinBox *targetEdit;
+        QLabel *targetPrompt;
         QLabel *frequencyLabel;
         QSpinBox *frequencyEdit;
+        QLabel *frequencyPrompt;
 
         void hide() const;
 
         void show() const;
+
+        [[nodiscard]] bool check() const;
     } weeklyTarget;
 
 public:
