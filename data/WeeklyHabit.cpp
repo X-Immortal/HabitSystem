@@ -40,7 +40,7 @@ void WeeklyHabit::updateCurrentWeek() {
         firstDayOfThisWeek = D1;
     }
 } //检查是否为新的一周，若是，则更新
-bool WeeklyHabit::complete() {
+bool WeeklyHabit::checkin() {
     if (completed) {
         cout << "习惯已完成，不能再次打卡！" << endl;
         return false;
@@ -67,7 +67,7 @@ bool WeeklyHabit::complete() {
     } //不满的话检查今天是否已经打卡，已打卡返回false 未打卡+一下天数然后true
 }
 
-void WeeklyHabit::display() {
+string WeeklyHabit::toString() const {
     cout << "[每周习惯]" << name << endl;
     if (completed) cout << "(已完成)";
     cout << "习惯描述:" << description << endl;
@@ -79,9 +79,10 @@ void WeeklyHabit::display() {
     if (finishedDates.empty()) {
         cout << "无" << endl;
     } else {
-        Date &last = finishedDates.back();
+        const Date &last = finishedDates.back();
         cout << last.year << "-" << last.month << "-" << last.day << endl;
     }
+    return "";
 }
 
 void WeeklyHabit::saveToFile(ofstream &out) {

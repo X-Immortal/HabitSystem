@@ -4,6 +4,8 @@
 
 #include "AddDialog.h"
 #include <QPushButton>
+
+#include "SystemWindow.h"
 #include "../data/DailyHabit.h"
 #include "../data/HabitManager.h"
 #include "../data/WeeklyHabit.h"
@@ -332,7 +334,7 @@ void AddDialog::initComboBox() {
     );
     target.prompt->hide();
 
-    connect(target.typeBox, &QComboBox::currentIndexChanged, [=](int index) {
+    connect(target.typeBox, &QComboBox::currentIndexChanged, this, [=](int index) {
         if (index == 0) {
             weeklyTarget.hide();
             dailyTarget.show();
@@ -355,7 +357,9 @@ void AddDialog::initButton() {
         "}"
         "QPushButton:hover { background-color: #b0aeae; }"
     );
-    connect(confirmButton, &QPushButton::clicked, this, &AddDialog::addHabit);
+    connect(confirmButton, &QPushButton::clicked, this, [=] {
+        addHabit();
+    });
 
     QPushButton *cancelButton = new QPushButton("取消", this);
     cancelButton->setGeometry(300, 470, 80, 20);
@@ -393,10 +397,14 @@ void AddDialog::addHabit() {
         int targetDays = dailyTarget.targetEdit->value();
         DailyHabit *dailyHabit = new DailyHabit(name, description, targetDays);
         HabitManager::add(dailyHabit);
+        dynamic_cast<SystemWindow *>(this->parent())->addCard(dailyHabit);
     } else {
         int targetWeeks = weeklyTarget.targetEdit->value();
         int frequency = weeklyTarget.frequencyEdit->value();
         WeeklyHabit *weeklyHabit = new WeeklyHabit(name, description, targetWeeks, frequency);
         HabitManager::add(weeklyHabit);
+        dynamic_cast<SystemWindow *>(this->parent())->addCard(weeklyHabit);
     }
+
+    this->close();
 }

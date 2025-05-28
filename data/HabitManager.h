@@ -12,35 +12,34 @@ using namespace std;
 
 class HabitManager {
 private:
-    static vector<Habit *> Habits;
-    static string file;
+    static vector<Habit *> habits;
+    static const string filePath;
 
-public:
-    HabitManager();
+    struct StaticInitializer {
+        StaticInitializer();
+    };
+    static StaticInitializer initializer;
+
+    HabitManager() = default;
 
     ~HabitManager();
 
+public:
     //添加习惯
     static void add(Habit *H);
 
     //删除习惯
-    static void del(string &Habitname);
+    static void del(const string &habitName);
 
     //获取Daily/Weekly习惯单独出来的序列
     static vector<Habit *> getDailyHabits();
 
     static vector<Habit *> getWeeklyHabits();
 
+    static vector<Habit *> getHabits();
+
     //打卡习惯
-    static bool checkin(string Habitname);
-
-    //display所有习惯
-    void display();
-
-    //display其中Daily习惯
-    void displayD();
-
-    void displayW();
+    static bool checkin(const string &habitName);
 
     //文件存储
     static void saveToFile();

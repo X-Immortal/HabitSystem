@@ -10,30 +10,38 @@
 using namespace std;
 
 class Habit {
-public:
+protected:
     string name;
     string description;
     int target;
     int finishedDays;
-    bool completed = 0;
+    bool completed = false;
 
     Habit();
 
     Habit(string name, string description, int target);
 
-    int getTarget();
+public:
+    [[nodiscard]] string getName() const;
 
-    int getCurrent();
+    [[nodiscard]] string getDescription() const;
 
-    virtual ~Habit();
+    [[nodiscard]] int getTarget() const;
 
-    virtual bool complete() = 0;
+    [[nodiscard]] int getFinishedDays() const;
 
-    virtual void display() = 0;
+    [[nodiscard]] bool isCompleted() const;
+
+    virtual ~Habit() = default;
+
+    virtual bool checkin() = 0;
+
+    [[nodiscard]] virtual string toString() const = 0;
 
     virtual void saveToFile(ofstream &out) = 0;
 
     virtual void loadFromFile(ifstream &in) = 0;
+
 };
 
 #endif //HABIT_H

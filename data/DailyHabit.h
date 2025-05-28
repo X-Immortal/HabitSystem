@@ -19,9 +19,9 @@ public:
 
     DailyHabit(string name, string description, int target);
 
-    bool complete() override;
+    bool checkin() override;
 
-    void display() override;
+    [[nodiscard]] string toString() const override;
 
     void saveToFile(ofstream &out) override;
 

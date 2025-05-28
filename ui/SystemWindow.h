@@ -7,6 +7,7 @@
 
 #include <QMainWindow>
 #include "AddDialog.h"
+#include "../data/Habit.h"
 
 class SystemWindow : public QMainWindow {
     Q_OBJECT
@@ -18,7 +19,6 @@ protected:
 
 public:
     explicit SystemWindow(QWidget *parent = nullptr);
-    ~SystemWindow();
 
 private:
     void initWindow();
@@ -27,6 +27,8 @@ private:
     void initScrollArea();
     void loadCards();
     void initDialog();
+    void addCard(Habit *habit);
+    void clearCards();
 };
 
 #endif //SYSTEMWINDOW_H

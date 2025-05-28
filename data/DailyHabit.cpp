@@ -4,12 +4,13 @@
 
 #include "DailyHabit.h"
 #include <iostream>
+#include <sstream>
 
 DailyHabit::DailyHabit() {}
 
 DailyHabit::DailyHabit(string name, string description, int target): Habit(name, description, target) {}
 
-bool DailyHabit::complete() {
+bool DailyHabit::checkin() {
     if (completed) {
         cout << "习惯已完成，不能再次打卡！" << endl;
         return false;
@@ -32,20 +33,25 @@ bool DailyHabit::complete() {
     return true;
 }
 
-void DailyHabit::display() {
-    cout << "[每日习惯]" << name << endl;
-    if (completed) cout << "(已完成)";
-    cout << "习惯描述:" << description << endl;
-    cout << "习惯目标：" << target << "天" << endl;
-    cout << "已打卡天数：" << finishedDays << "天" << endl;
-    cout << "进度：" << finishedDays << "天/" << target << "天" << endl;
-    cout << "最近打卡日期：";
-    if (finishedDates.empty()) {
-        cout << "无" << endl;
-    } else {
-        Date &last = finishedDates.back();
-        cout << last.year << "-" << last.month << "-" << last.day << endl;
+string DailyHabit::toString() const {
+    stringstream ss;
+    ss << "<html>" << "<p>[每日习惯]";
+    if (completed) {
+        ss << "(已完成)";
     }
+    ss << "<br/>名称：" << name
+        << "<br/>习惯描述：" << description
+        << "<br/>目标天数：" << target
+        << "<br/>已打卡天数：" << finishedDays
+        << "<br/>最近打卡日期：";
+    if (finishedDates.empty()) {
+        ss << "无" << endl;
+    } else {
+        const Date &last = finishedDates.back();
+        ss << last.year << "-" << last.month << "-" << last.day << endl;
+    }
+    ss << "</p>" << "</html>";
+    return ss.str();
 }
 
 void DailyHabit::saveToFile(ofstream &out) {

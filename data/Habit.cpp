@@ -1,7 +1,3 @@
-//
-// Created by xyx on 25-5-23.
-//
-
 #include "Habit.h"
 
 Habit::Habit() {}
@@ -9,12 +5,22 @@ Habit::Habit() {}
 Habit::Habit(string name, string description, int target) :
 name(name), description(description), target(target), finishedDays(0) {}
 
-int Habit::getTarget() {
+string Habit::getName() const {
+    return name;
+}
+
+string Habit::getDescription() const {
+    return description;
+}
+
+int Habit::getTarget() const {
     return target;
 }
 
-int Habit::getCurrent() {
+int Habit::getFinishedDays() const {
     return finishedDays;
 }
 
-Habit::~Habit() {}
+bool Habit::isCompleted() const {
+    return finishedDays >= target;
+}

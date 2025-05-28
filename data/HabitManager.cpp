@@ -1,50 +1,56 @@
-//
-// Created by xyx on 25-5-23.
-//
-
 #include "HabitManager.h"
-#include <iostream>
 #include "WeeklyHabit.h"
 #include "DailyHabit.h"
+#include <iostream>
+#include <filesystem>
 
 using namespace std;
 
-string HabitManager::file = ".\\file\\habits.txt";
+#if defined(_WIN32)
+const string HabitManager::file = ".\\file\\habits.txt";
+#else
+const string HabitManager::filePath = "./file/habits.txt";
+#endif
 
-HabitManager::HabitManager() {
+vector<Habit *> HabitManager::habits;
+
+HabitManager::StaticInitializer HabitManager::initializer;
+
+HabitManager::StaticInitializer::StaticInitializer() {
+    loadFromFile();
 }
 
 HabitManager::~HabitManager() {
-    for (Habit *habit: Habits) {
+    for (Habit *habit: habits) {
         delete habit;
     }
 }
 
 //添加习惯
 void HabitManager::add(Habit *H) {
-    Habits.push_back(H);
+    habits.push_back(H);
 }
 
 //删除习惯
-void HabitManager::del(string &Habitname) {
+void HabitManager::del(const string &habitName) {
     bool found = false;
     int i = 0;
-    while (i < Habits.size()) {
-        if (Habits[i]->name == Habitname) {
-            delete Habits[i];
-            Habits.erase(Habits.begin() + i);
+    while (i < habits.size()) {
+        if (habits[i]->getName() == habitName) {
+            delete habits[i];
+            habits.erase(habits.begin() + i);
             found = true;
         } else i++;
     }
     if (found) {
-        cout << "已删除所有名字为\"" << Habitname << "\"的习惯" << endl;
+        cout << "已删除所有名字为\"" << habitName << "\"的习惯" << endl;
     } else cout << "未找到该习惯" << endl;
 }
 
 //获取Daily/Weekly习惯单独出来的序列
 vector<Habit *> HabitManager::getDailyHabits() {
     vector<Habit *> result;
-    for (Habit *habit: Habits) {
+    for (Habit *habit: habits) {
         if (dynamic_cast<DailyHabit *>(habit)) {
             result.push_back(habit);
         }
@@ -54,7 +60,7 @@ vector<Habit *> HabitManager::getDailyHabits() {
 
 vector<Habit *> HabitManager::getWeeklyHabits() {
     vector<Habit *> result;
-    for (Habit *habit: Habits) {
+    for (Habit *habit: habits) {
         if (dynamic_cast<WeeklyHabit *>(habit)) {
             result.push_back(habit);
         }
@@ -62,71 +68,54 @@ vector<Habit *> HabitManager::getWeeklyHabits() {
     return result;
 }
 
+vector<Habit *> HabitManager::getHabits() {
+    return habits;
+}
+
+
 //打卡习惯
-bool HabitManager::checkin(string Habitname) {
-    int found = 0;
-    for (Habit *habit: Habits) {
-        if (habit->name == Habitname) {
-            found = 1;
-            return habit->complete();
+bool HabitManager::checkin(const string& habitName) {
+    for (Habit *habit: habits) {
+        if (habit->getName() == habitName) {
+            return habit->checkin();
         }
     }
-    if (found == 0) {
-        cout << "未找到该习惯！" << endl;
-        return false;
-    }
-}
-
-//display所有习惯
-void HabitManager::display() {
-    cout << "习惯个数为" << Habits.size() << endl;
-    for (int i = 0; i < Habits.size(); i++) {
-        cout << "[" << i + 1 << "]" << endl;
-        Habits[i]->display();
-        cout << "----------" << endl;
-    }
-}
-
-//display其中Daily习惯
-void HabitManager::displayD() {
-    vector<Habit *> V = getDailyHabits();
-    cout << "Daily习惯个数为" << V.size() << endl;
-    for (int i = 0; i < V.size(); i++) {
-        cout << "[" << i + 1 << "]" << endl;
-        V[i]->display();
-        cout << "----------" << endl;
-    }
-}
-
-void HabitManager::displayW() {
-    vector<Habit *> V = getWeeklyHabits();
-    cout << "Weekly习惯个数为" << V.size() << endl;
-    for (int i = 0; i < V.size(); i++) {
-        cout << "[" << i + 1 << "]" << endl;
-        V[i]->display();
-        cout << "----------" << endl;
-    }
+    cout << "未找到该习惯！" << endl;
+    return false;
 }
 
 //文件存储
 void HabitManager::saveToFile() {
-    ofstream out(file);
+    filesystem::path path(filePath);
+    if (!filesystem::create_directories(path.parent_path())) {
+        cerr << "无法创建目录！" << endl;
+        return;
+    }
+
+    ofstream out(filePath);
     if (!out) {
         cerr << "无法保存文件！" << endl;
         return;
     }
-    out << Habits.size() << endl;
-    for (Habit *habit: Habits) {
+    out << habits.size() << endl;
+    for (Habit *habit: habits) {
         habit->saveToFile(out);
     }
     cout << "数据已保存！" << endl;
 }
 
 void HabitManager::loadFromFile() {
-    ifstream in(file);
+    filesystem::path path(filePath);
+    error_code ec;
+    if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
+        cerr << "无法创建目录！" << endl;
+        return;
+    }
+
+    ifstream in(filePath);
     if (!in) {
         // 文件不存在时，创建一个空文件
-        ofstream out(file);
+        ofstream out(filePath);
         if (!out) {
             cerr << "无法创建文件！" << endl;
             return;
@@ -136,10 +125,10 @@ void HabitManager::loadFromFile() {
         cout << "创建了新文件" << endl;
         return;
     }
-    for (Habit *habit: Habits) {
+    for (Habit *habit: habits) {
         delete habit;
     }
-    Habits.clear();
+    habits.clear();
     int count;
     in >> count;
     in.ignore();
@@ -153,7 +142,7 @@ void HabitManager::loadFromFile() {
             habit = new WeeklyHabit();
         if (habit) {
             habit->loadFromFile(in);
-            Habits.push_back(habit);
+            habits.push_back(habit);
         }
     }
 }

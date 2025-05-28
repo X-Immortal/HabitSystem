@@ -27,9 +27,9 @@ public:
 
     void updateCurrentWeek(); //检查是否为新的一周，若是，则更新
 
-    bool complete() override;
+    bool checkin() override;
 
-    void display() override;
+    [[nodiscard]] string toString() const override;
 
     void saveToFile(ofstream &out) override;
 

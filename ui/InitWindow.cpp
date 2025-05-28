@@ -48,7 +48,7 @@ void InitWindow::initButton() {
     );
     startButton->setGeometry(70, 100, 100, 50);
     InitWindow *initWindow = this;
-    connect(startButton, &QPushButton::clicked, [=] {
+    connect(startButton, &QPushButton::clicked, this, [=] {
         systemWindow->move(initWindow->pos());
         systemWindow->show();
         initWindow->hide();

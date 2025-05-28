@@ -21,8 +21,6 @@ SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     loadCards();
 }
 
-SystemWindow::~SystemWindow() = default;
-
 void SystemWindow::initWindow() {
     setWindowTitle("习惯打卡管理系统");
     setFixedSize(700, 500);
@@ -122,44 +120,68 @@ void SystemWindow::initScrollArea() {
     scrollContainer->setLayout(scrollLayout);
 }
 
+void SystemWindow::addCard(Habit *habit) {
+    QLabel *habitLabel = new QLabel(
+        QString::fromStdString(habit->toString()),
+        scrollContainer
+    );
+    habitLabel->setStyleSheet(
+        "QLabel {"
+        "   font: 15px;"
+        "   color: #000000;"
+        "   background: silver;"
+        "   border: 1px solid #000000;"
+        "}"
+    );
+    habitLabel->setFixedSize(150, 250);
+    habitLabel->setLayout(nullptr);
+    scrollContainer->layout()->addWidget(habitLabel);
+
+    QPushButton *checkinButton = new QPushButton("打卡", habitLabel);
+    checkinButton->setStyleSheet(
+        "QPushButton{"
+        "   color: #000000;"
+        "   background-color: #f9f4f4;"
+        "   border: 1px solid #000000;"
+        "   font: bold 15px;"
+        "}"
+        "QPushButton:hover { background-color: #b0aeae; }"
+    );
+    checkinButton->setGeometry(20, 160, 50, 25);
+    connect(checkinButton, &QPushButton::clicked, this, [=]() {
+        habit->checkin();
+    });
+
+    QPushButton *deleteButton = new QPushButton("删除", habitLabel);
+    deleteButton->setStyleSheet(
+        "QPushButton{"
+        "   color: #000000;"
+        "   background-color: #f9f4f4;"
+        "   border: 1px solid #000000;"
+        "   font: bold 15px;"
+        "}"
+        "QPushButton:hover { background-color: #b0aeae; }"
+    );
+    deleteButton->setGeometry(80, 160, 50, 25);
+    connect(deleteButton, &QPushButton::clicked, this, [=]() {
+        HabitManager::del(habit->getName());
+    });
+}
+
+void SystemWindow::clearCards() {
+    QList<QWidget*> childWidgets = scrollContainer->findChildren<QWidget*>();
+    for (QWidget *widget : childWidgets) {
+        widget->deleteLater();
+    }
+}
+
 void SystemWindow::loadCards() {
-    for (int i = 0; i < 5; ++i) {
-        QLabel *habit = new QLabel("习惯" + QString::number(i + 1), scrollContainer);
-        habit->setStyleSheet(
-            "QLabel {"
-            "   font: 20px;"
-            "   color: #000000;"
-            "   background: #1e2ffc;"
-            "   border: 1px solid #000000;"
-            "}"
-        );
-        habit->setFixedSize(150, 200);
-        habit->setLayout(nullptr);
-        scrollContainer->layout()->addWidget(habit);
+    clearCards();
 
-        QPushButton *checkinButton = new QPushButton("打卡", habit);
-        checkinButton->setStyleSheet(
-            "QPushButton{"
-            "   color: #000000;"
-            "   background-color: #f9f4f4;"
-            "   border: 1px solid #000000;"
-            "   font: bold 15px;"
-            "}"
-            "QPushButton:hover { background-color: #b0aeae; }"
-        );
-        checkinButton->setGeometry(20, 160, 50, 25);
+    vector<Habit *> habits = HabitManager::getHabits();
 
-        QPushButton *deleteButton = new QPushButton("删除", habit);
-        deleteButton->setStyleSheet(
-            "QPushButton{"
-            "   color: #000000;"
-            "   background-color: #f9f4f4;"
-            "   border: 1px solid #000000;"
-            "   font: bold 15px;"
-            "}"
-            "QPushButton:hover { background-color: #b0aeae; }"
-        );
-        deleteButton->setGeometry(80, 160, 50, 25);
+    for (int i = 0; i < habits.size(); ++i) {
+       addCard(habits[i]);
     }
 
     QPushButton *addButton = new QPushButton("+", scrollContainer);
@@ -174,7 +196,7 @@ void SystemWindow::loadCards() {
         "   text-align: center;"
         "}"
     );
-    connect(addButton, &QPushButton::clicked, [=] {
+    connect(addButton, &QPushButton::clicked, this, [=] {
         addDialog->show();
     });
     scrollContainer->layout()->addWidget(addButton);
