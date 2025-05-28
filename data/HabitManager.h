@@ -12,29 +12,27 @@ using namespace std;
 
 class HabitManager {
 private:
-    vector<Habit *> Habits;
-    string file;
+    static vector<Habit *> Habits;
+    static string file;
 
 public:
     HabitManager();
 
-    HabitManager(const string &fname);
-
     ~HabitManager();
 
     //添加习惯
-    void add(Habit *H);
+    static void add(Habit *H);
 
     //删除习惯
-    void del(string &Habitname);
+    static void del(string &Habitname);
 
     //获取Daily/Weekly习惯单独出来的序列
-    vector<Habit *> getDailyHabits();
+    static vector<Habit *> getDailyHabits();
 
-    vector<Habit *> getWeeklyHabits();
+    static vector<Habit *> getWeeklyHabits();
 
     //打卡习惯
-    bool complete(string Habitname);
+    static bool checkin(string Habitname);
 
     //display所有习惯
     void display();
@@ -45,13 +43,13 @@ public:
     void displayW();
 
     //文件存储
-    void saveToFile();
+    static void saveToFile();
 
-    void loadFromFile();
+    static void loadFromFile();
 
-    void showMenu();
+    static void showMenu();
 
-    void addHabit();
+    static void addHabit();
 };
 
 #endif //HABITMANAGER_H

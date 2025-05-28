@@ -9,10 +9,10 @@
 
 using namespace std;
 
+string HabitManager::file = ".\\file\\habits.txt";
+
 HabitManager::HabitManager() {
 }
-
-HabitManager::HabitManager(const string &fname): file(fname) {}
 
 HabitManager::~HabitManager() {
     for (Habit *habit: Habits) {
@@ -63,7 +63,7 @@ vector<Habit *> HabitManager::getWeeklyHabits() {
 }
 
 //打卡习惯
-bool HabitManager::complete(string Habitname) {
+bool HabitManager::checkin(string Habitname) {
     int found = 0;
     for (Habit *habit: Habits) {
         if (habit->name == Habitname) {

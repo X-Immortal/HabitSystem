@@ -393,5 +393,10 @@ void AddDialog::addHabit() {
         int targetDays = dailyTarget.targetEdit->value();
         DailyHabit *dailyHabit = new DailyHabit(name, description, targetDays);
         HabitManager::add(dailyHabit);
+    } else {
+        int targetWeeks = weeklyTarget.targetEdit->value();
+        int frequency = weeklyTarget.frequencyEdit->value();
+        WeeklyHabit *weeklyHabit = new WeeklyHabit(name, description, targetWeeks, frequency);
+        HabitManager::add(weeklyHabit);
     }
 }

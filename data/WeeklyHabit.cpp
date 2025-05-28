@@ -8,8 +8,8 @@
 WeeklyHabit::WeeklyHabit() {
 }
 
-WeeklyHabit::WeeklyHabit(string name, string description, int WT, int frequency):
-    Habit(name, description, WT), frequency(frequency), finishedWeeks(0), checkinTimes(0),
+WeeklyHabit::WeeklyHabit(string name, string description, int target, int frequency):
+    Habit(name, description, target), frequency(frequency), finishedWeeks(0), checkinTimes(0),
     firstDayOfThisWeek(Date::today().getFirstDayOfWeek()) {}
 
 void WeeklyHabit::checkWeekTask() {

@@ -21,7 +21,7 @@ public:
 
     WeeklyHabit();
 
-    WeeklyHabit(string name, string description, int WT, int frequency);
+    WeeklyHabit(string name, string description, int target, int frequency);
 
     void checkWeekTask();
 

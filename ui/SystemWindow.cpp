@@ -2,7 +2,6 @@
 // Created by xyx on 25-5-22.
 //
 #include "SystemWindow.h"
-
 #include <QApplication>
 #include <QWidget>
 #include <QLabel>
@@ -11,6 +10,7 @@
 #include <QScrollArea>
 #include <QSizePolicy>
 #include <QHBoxLayout>
+#include "../data/HabitManager.h"
 
 SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
@@ -95,6 +95,7 @@ void SystemWindow::initButton() {
 }
 
 void SystemWindow::closeEvent(QCloseEvent *event) {
+    HabitManager::saveToFile();
     qApp->quit();
 }
 
