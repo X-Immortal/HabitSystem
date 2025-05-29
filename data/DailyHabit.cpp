@@ -11,36 +11,59 @@ DailyHabit::DailyHabit() {}
 DailyHabit::DailyHabit(string name, string description, int target): Habit(name, description, target) {}
 
 bool DailyHabit::checkin() {
-    if (completed) {
-        cout << "习惯已完成，不能再次打卡！" << endl;
+    if (isCompleted()) {
+        cout << "Habit finished！" << endl;
         return false;
     }
     Date today = Date::today();
     for (const Date &date: finishedDates) {
         if (date == today) {
-            cout << "今天已打卡过" << endl;
+            cout << "You have checked in today!" << endl;
             return false;
         }
     }
     finishedDates.push_back(today);
     finishedDays++;
-    if (finishedDays >= target) {
-        completed = true;
-        cout << "恭喜你！" << name << "习惯已完成！" << endl;
+    if (isCompleted()) {
+        cout << "Good！" << name << "has been finished！" << endl;
     } else {
-        cout << "第" << finishedDays << "次打卡成功！" << endl;
+        cout << finishedDays << "checkin" << endl;
     }
     return true;
 }
 
 string DailyHabit::toString() const {
     stringstream ss;
-    ss << "<html>" << "<p>[每日习惯]";
-    if (completed) {
+    ss << "<html>"
+        << "<div style='width: 140px; word-wrap: break-word; white-space: pre-wrap;'>"
+        << "<p>[每日习惯]";
+    if (isCompleted()) {
         ss << "(已完成)";
     }
     ss << "<br/>名称：" << name
         << "<br/>习惯描述：" << description
+        << "<br/>目标天数：" << target
+        << "<br/>已打卡天数：" << finishedDays
+        << "<br/>最近打卡日期：";
+    if (finishedDates.empty()) {
+        ss << "无" << endl;
+    } else {
+        const Date &last = finishedDates.back();
+        ss << last.year << "-" << last.month << "-" << last.day << endl;
+    }
+    ss << "</p>" << "</html>";
+    return ss.str();
+}
+
+string DailyHabit::toSimpleString() const {
+    stringstream ss;
+    ss << "<html>"
+        << "<div style='word-wrap: break-word; white-space: pre-wrap;'>"
+        << "<p>[每日习惯]";
+    if (isCompleted()) {
+        ss << "(已完成)";
+    }
+    ss << "<br/>名称：" << name
         << "<br/>目标天数：" << target
         << "<br/>已打卡天数：" << finishedDays
         << "<br/>最近打卡日期：";
@@ -60,7 +83,6 @@ void DailyHabit::saveToFile(ofstream &out) {
     out << description << endl;
     out << target << endl;
     out << finishedDays << endl;
-    out << completed << endl;
     for (const Date &date: finishedDates) {
         out << date.year << " " << date.month << " " << date.day << endl;
     }

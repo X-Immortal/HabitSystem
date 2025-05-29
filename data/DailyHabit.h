@@ -23,6 +23,8 @@ public:
 
     [[nodiscard]] string toString() const override;
 
+    [[nodiscard]] string toSimpleString() const override;
+
     void saveToFile(ofstream &out) override;
 
     void loadFromFile(ifstream &in) override;

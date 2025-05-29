@@ -19,13 +19,13 @@ protected:
 
 public:
     explicit SystemWindow(QWidget *parent = nullptr);
+    void loadCards(vector<Habit *> habits);
 
 private:
     void initWindow();
     void initText();
     void initButton();
     void initScrollArea();
-    void loadCards();
     void initDialog();
     void addCard(Habit *habit);
     void clearCards();

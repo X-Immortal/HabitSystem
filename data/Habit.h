@@ -15,7 +15,6 @@ protected:
     string description;
     int target;
     int finishedDays;
-    bool completed = false;
 
     Habit();
 
@@ -37,6 +36,8 @@ public:
     virtual bool checkin() = 0;
 
     [[nodiscard]] virtual string toString() const = 0;
+
+    [[nodiscard]] virtual string toSimpleString() const = 0;
 
     virtual void saveToFile(ofstream &out) = 0;
 

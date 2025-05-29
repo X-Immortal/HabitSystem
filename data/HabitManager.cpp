@@ -7,7 +7,7 @@
 using namespace std;
 
 #if defined(_WIN32)
-const string HabitManager::file = ".\\file\\habits.txt";
+const string HabitManager::filePath = ".\\file\\habits.txt";
 #else
 const string HabitManager::filePath = "./file/habits.txt";
 #endif
@@ -33,18 +33,13 @@ void HabitManager::add(Habit *H) {
 
 //删除习惯
 void HabitManager::del(const string &habitName) {
-    bool found = false;
-    int i = 0;
-    while (i < habits.size()) {
+    for (int i = 0; i < habits.size(); i++) {
         if (habits[i]->getName() == habitName) {
             delete habits[i];
             habits.erase(habits.begin() + i);
-            found = true;
-        } else i++;
+            return;
+        }
     }
-    if (found) {
-        cout << "已删除所有名字为\"" << habitName << "\"的习惯" << endl;
-    } else cout << "未找到该习惯" << endl;
 }
 
 //获取Daily/Weekly习惯单独出来的序列
@@ -80,35 +75,36 @@ bool HabitManager::checkin(const string& habitName) {
             return habit->checkin();
         }
     }
-    cout << "未找到该习惯！" << endl;
+    cout << "Habit not found！" << endl;
     return false;
 }
 
 //文件存储
 void HabitManager::saveToFile() {
     filesystem::path path(filePath);
-    if (!filesystem::create_directories(path.parent_path())) {
-        cerr << "无法创建目录！" << endl;
+    error_code ec;
+    if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
+        cerr << "Failed to create directory！" << endl;
         return;
     }
 
     ofstream out(filePath);
     if (!out) {
-        cerr << "无法保存文件！" << endl;
+        cerr << "Failed to save file!" << endl;
         return;
     }
     out << habits.size() << endl;
     for (Habit *habit: habits) {
         habit->saveToFile(out);
     }
-    cout << "数据已保存！" << endl;
+    cout << "File saved!" << endl;
 }
 
 void HabitManager::loadFromFile() {
     filesystem::path path(filePath);
     error_code ec;
     if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
-        cerr << "无法创建目录！" << endl;
+        cerr << "Failed to create directory！" << endl;
         return;
     }
 
@@ -117,12 +113,12 @@ void HabitManager::loadFromFile() {
         // 文件不存在时，创建一个空文件
         ofstream out(filePath);
         if (!out) {
-            cerr << "无法创建文件！" << endl;
+            cerr << "Failed to create file！" << endl;
             return;
         }
         out << 0 << endl; // 写入0表示没有习惯
         out.close();
-        cout << "创建了新文件" << endl;
+        cout << "File created" << endl;
         return;
     }
     for (Habit *habit: habits) {

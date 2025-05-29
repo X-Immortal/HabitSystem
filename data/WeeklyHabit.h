@@ -15,7 +15,7 @@ class WeeklyHabit : public Habit {
 public:
     int frequency; //每周需要打卡次数
     int finishedWeeks; //已完成打卡周数
-    int checkinTimes; //当前周打卡次数
+    int checkinTimesThisWeek; //当前周打卡次数
     Date firstDayOfThisWeek;
     vector<Date> finishedDates;
 
@@ -30,6 +30,8 @@ public:
     bool checkin() override;
 
     [[nodiscard]] string toString() const override;
+
+    [[nodiscard]] string toSimpleString() const override;
 
     void saveToFile(ofstream &out) override;
 

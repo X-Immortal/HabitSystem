@@ -79,6 +79,8 @@ private:
     void initButton();
 
     void addHabit();
+
+    void clear();
 };
 
 #endif //ADDDIALOG_H

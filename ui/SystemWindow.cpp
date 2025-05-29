@@ -18,7 +18,7 @@ SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initButton();
     initScrollArea();
     initDialog();
-    loadCards();
+    loadCards(HabitManager::getHabits());
 }
 
 void SystemWindow::initWindow() {
@@ -40,7 +40,7 @@ void SystemWindow::initText() {
         "   background: transparent;"
         "}"
     );
-    title->setGeometry(190, 50, 310, 50);
+    title->setGeometry(190, 50, 350, 50);
 
     QLabel *nowtime = new QLabel("今天是" + QDate::currentDate().toString("yyyy年MM月dd日"), centralWidget());
     nowtime->setStyleSheet(
@@ -66,6 +66,9 @@ void SystemWindow::initButton() {
         "QPushButton:hover { background-color: #b0aeae; }"
     );
     allButton->setGeometry(550, 170, 100, 50);
+    connect(allButton, &QPushButton::clicked, this, [=]() {
+        loadCards(HabitManager::getHabits());
+    });
 
     QPushButton *dailyButton = new QPushButton("Daily", centralWidget());
     dailyButton->setStyleSheet(
@@ -78,6 +81,9 @@ void SystemWindow::initButton() {
         "QPushButton:hover { background-color: #b0aeae; }"
     );
     dailyButton->setGeometry(550, 270, 100, 50);
+    connect(dailyButton, &QPushButton::clicked, this, [=]() {
+        loadCards(HabitManager::getDailyHabits());
+    });
 
     QPushButton *weeklyButton = new QPushButton("Weekly", centralWidget());
     weeklyButton->setStyleSheet(
@@ -90,6 +96,9 @@ void SystemWindow::initButton() {
         "QPushButton:hover { background-color: #b0aeae; }"
     );
     weeklyButton->setGeometry(550, 370, 100, 50);
+    connect(weeklyButton, &QPushButton::clicked, this, [=]() {
+        loadCards(HabitManager::getWeeklyHabits());
+    });
 }
 
 void SystemWindow::closeEvent(QCloseEvent *event) {
@@ -122,7 +131,7 @@ void SystemWindow::initScrollArea() {
 
 void SystemWindow::addCard(Habit *habit) {
     QLabel *habitLabel = new QLabel(
-        QString::fromStdString(habit->toString()),
+        QString::fromStdString(habit->toSimpleString()),
         scrollContainer
     );
     habitLabel->setStyleSheet(
@@ -135,6 +144,7 @@ void SystemWindow::addCard(Habit *habit) {
     );
     habitLabel->setFixedSize(150, 250);
     habitLabel->setLayout(nullptr);
+    habitLabel->setWordWrap(true);
     scrollContainer->layout()->addWidget(habitLabel);
 
     QPushButton *checkinButton = new QPushButton("打卡", habitLabel);
@@ -147,9 +157,10 @@ void SystemWindow::addCard(Habit *habit) {
         "}"
         "QPushButton:hover { background-color: #b0aeae; }"
     );
-    checkinButton->setGeometry(20, 160, 50, 25);
+    checkinButton->setGeometry(20, 210, 50, 25);
     connect(checkinButton, &QPushButton::clicked, this, [=]() {
         habit->checkin();
+        habitLabel->setText(QString::fromStdString(habit->toSimpleString()));
     });
 
     QPushButton *deleteButton = new QPushButton("删除", habitLabel);
@@ -162,9 +173,10 @@ void SystemWindow::addCard(Habit *habit) {
         "}"
         "QPushButton:hover { background-color: #b0aeae; }"
     );
-    deleteButton->setGeometry(80, 160, 50, 25);
+    deleteButton->setGeometry(80, 210, 50, 25);
     connect(deleteButton, &QPushButton::clicked, this, [=]() {
         HabitManager::del(habit->getName());
+        habitLabel->deleteLater();
     });
 }
 
@@ -175,10 +187,8 @@ void SystemWindow::clearCards() {
     }
 }
 
-void SystemWindow::loadCards() {
+void SystemWindow::loadCards(vector<Habit *> habits) {
     clearCards();
-
-    vector<Habit *> habits = HabitManager::getHabits();
 
     for (int i = 0; i < habits.size(); ++i) {
        addCard(habits[i]);

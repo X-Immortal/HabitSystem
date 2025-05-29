@@ -20,6 +20,7 @@ AddDialog::AddDialog(QWidget *parent) : QDialog(parent) {
 
 void AddDialog::DailyTarget::hide() const {
     assert(targetLabel && targetEdit);
+    targetEdit->clear();
     targetEdit->hide();
     targetLabel->hide();
     prompt->hide();
@@ -33,9 +34,11 @@ void AddDialog::DailyTarget::show() const {
 
 void AddDialog::WeeklyTarget::hide() const {
     assert(targetLabel && targetEdit && frequencyEdit && frequencyLabel);
+    targetEdit->clear();
     targetEdit->hide();
     targetLabel->hide();
     targetPrompt->hide();
+    frequencyEdit->clear();
     frequencyEdit->hide();
     frequencyLabel->hide();
     frequencyPrompt->hide();
@@ -335,12 +338,17 @@ void AddDialog::initComboBox() {
     target.prompt->hide();
 
     connect(target.typeBox, &QComboBox::currentIndexChanged, this, [=](int index) {
-        if (index == 0) {
-            weeklyTarget.hide();
-            dailyTarget.show();
-        } else {
-            dailyTarget.hide();
-            weeklyTarget.show();
+        switch (index) {
+            case 0:
+                weeklyTarget.hide();
+                dailyTarget.show();
+                break;
+            case 1:
+                dailyTarget.hide();
+                weeklyTarget.show();
+                break;
+            default:
+                break;
         }
     });
 }
@@ -397,14 +405,21 @@ void AddDialog::addHabit() {
         int targetDays = dailyTarget.targetEdit->value();
         DailyHabit *dailyHabit = new DailyHabit(name, description, targetDays);
         HabitManager::add(dailyHabit);
-        dynamic_cast<SystemWindow *>(this->parent())->addCard(dailyHabit);
     } else {
         int targetWeeks = weeklyTarget.targetEdit->value();
         int frequency = weeklyTarget.frequencyEdit->value();
         WeeklyHabit *weeklyHabit = new WeeklyHabit(name, description, targetWeeks, frequency);
         HabitManager::add(weeklyHabit);
-        dynamic_cast<SystemWindow *>(this->parent())->addCard(weeklyHabit);
     }
-
     this->close();
+    dynamic_cast<SystemWindow *>(this->parentWidget())->loadCards(HabitManager::getHabits());
+    clear();
+}
+
+void AddDialog::clear() {
+    this->name.nameEdit->clear();
+    this->description.descriptionEdit->clear();
+    this->dailyTarget.hide();
+    this->weeklyTarget.hide();
+    this->target.typeBox->setCurrentIndex(-1);
 }
