@@ -111,7 +111,6 @@ bool AddDialog::WeeklyTarget::check() const {
 void AddDialog::initDialog() {
     this->setWindowTitle("添加习惯");
     this->setFixedSize(400, 500);
-    this->setLayout(nullptr);
     this->setStyleSheet("background-color: #e3e3e3;");
 }
 
@@ -384,18 +383,10 @@ void AddDialog::initButton() {
 }
 
 void AddDialog::addHabit() {
-    if (!name.check() | !description.check() | !target.check()) {
+    if (!name.check() | !description.check() | !target.check() |
+        ((target.typeBox->currentIndex() == 0 && !dailyTarget.check()) ||
+            target.typeBox->currentIndex() == 1 && !weeklyTarget.check())) {
         return;
-    }
-
-    if (target.typeBox->currentIndex() == 0) {
-        if (!dailyTarget.check()) {
-            return;
-        }
-    } else {
-        if (!weeklyTarget.check()) {
-            return;
-        }
     }
 
     string name = this->name.nameEdit->text().toStdString();
@@ -412,7 +403,7 @@ void AddDialog::addHabit() {
         HabitManager::add(weeklyHabit);
     }
     this->close();
-    dynamic_cast<SystemWindow *>(this->parentWidget())->loadCards(HabitManager::getHabits());
+    emit habitAdded();
     clear();
 }
 

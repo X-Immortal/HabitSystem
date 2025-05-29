@@ -14,11 +14,11 @@
 
 SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
+    initDialog();
     initText();
     initButton();
     initScrollArea();
-    initDialog();
-    loadCards(HabitManager::getHabits());
+    loadCards();
 }
 
 void SystemWindow::initWindow() {
@@ -67,7 +67,8 @@ void SystemWindow::initButton() {
     );
     allButton->setGeometry(550, 170, 100, 50);
     connect(allButton, &QPushButton::clicked, this, [=]() {
-        loadCards(HabitManager::getHabits());
+        state = ALL;
+        loadCards();
     });
 
     QPushButton *dailyButton = new QPushButton("Daily", centralWidget());
@@ -82,7 +83,8 @@ void SystemWindow::initButton() {
     );
     dailyButton->setGeometry(550, 270, 100, 50);
     connect(dailyButton, &QPushButton::clicked, this, [=]() {
-        loadCards(HabitManager::getDailyHabits());
+        state = DAILY;
+        loadCards();
     });
 
     QPushButton *weeklyButton = new QPushButton("Weekly", centralWidget());
@@ -97,7 +99,8 @@ void SystemWindow::initButton() {
     );
     weeklyButton->setGeometry(550, 370, 100, 50);
     connect(weeklyButton, &QPushButton::clicked, this, [=]() {
-        loadCards(HabitManager::getWeeklyHabits());
+        state = WEEKLY;
+        loadCards();
     });
 }
 
@@ -127,6 +130,10 @@ void SystemWindow::initScrollArea() {
     QHBoxLayout *scrollLayout = new QHBoxLayout(scrollContainer);
     scrollLayout->setSpacing(20);
     scrollContainer->setLayout(scrollLayout);
+
+    connect(addDialog, &AddDialog::habitAdded, this, [=] {
+        loadCards();
+    });
 }
 
 void SystemWindow::addCard(Habit *habit) {
@@ -143,7 +150,6 @@ void SystemWindow::addCard(Habit *habit) {
         "}"
     );
     habitLabel->setFixedSize(150, 250);
-    habitLabel->setLayout(nullptr);
     habitLabel->setWordWrap(true);
     scrollContainer->layout()->addWidget(habitLabel);
 
@@ -175,23 +181,58 @@ void SystemWindow::addCard(Habit *habit) {
     );
     deleteButton->setGeometry(80, 210, 50, 25);
     connect(deleteButton, &QPushButton::clicked, this, [=]() {
+        deleteDialog->setHabit(habit);
+        deleteDialog->show();
+    });
+    connect(deleteDialog, &DeleteDialog::deleteConfirmed, this, [=](Habit *habit) {
         HabitManager::del(habit->getName());
-        habitLabel->deleteLater();
+        loadCards();
+    });
+
+    QPushButton *infoButton = new QPushButton("详情", habitLabel);
+    infoButton->setStyleSheet(
+        "QPushButton{"
+        "   color: #000000;"
+        "   background-color: #f9f4f4;"
+        "   border: 1px solid #000000;"
+        "   font: bold 10px;"
+        "}"
+        "QPushButton:hover { background-color: #b0aeae; }"
+    );
+    infoButton->setGeometry(100, 20, 40, 15);
+    connect(infoButton, &QPushButton::clicked, this, [=]() {
+        informationDialog->setHabit(habit);
+        informationDialog->show();
     });
 }
 
 void SystemWindow::clearCards() {
-    QList<QWidget*> childWidgets = scrollContainer->findChildren<QWidget*>();
-    for (QWidget *widget : childWidgets) {
+    QList<QWidget *> childWidgets = scrollContainer->findChildren<QWidget *>();
+    for (QWidget *widget: childWidgets) {
         widget->deleteLater();
     }
 }
 
-void SystemWindow::loadCards(vector<Habit *> habits) {
+void SystemWindow::loadCards() {
+    vector<Habit *> habits;
+    switch (state) {
+        case ALL:
+            habits = HabitManager::getHabits();
+            break;
+        case DAILY:
+            habits = HabitManager::getDailyHabits();
+            break;
+        case WEEKLY:
+            habits = HabitManager::getWeeklyHabits();
+            break;
+        default:
+            break;
+    }
+
     clearCards();
 
     for (int i = 0; i < habits.size(); ++i) {
-       addCard(habits[i]);
+        addCard(habits[i]);
     }
 
     QPushButton *addButton = new QPushButton("+", scrollContainer);
@@ -214,4 +255,6 @@ void SystemWindow::loadCards(vector<Habit *> habits) {
 
 void SystemWindow::initDialog() {
     addDialog = new AddDialog(this);
+    deleteDialog = new DeleteDialog(this);
+    informationDialog = new InformationDialog(this);
 }

@@ -68,16 +68,16 @@ bool WeeklyHabit::checkin() {
 
 string WeeklyHabit::toString() const {
     stringstream ss;
-    ss << "<html>"
-        << "<div style='width: 140px; word-wrap: break-word; white-space: pre-wrap;'>"
-        << "<p>[每周习惯]";
+    ss << "<html>" << "<p>[每周习惯]";
     if (isCompleted()) {
         ss << "(已完成)";
     }
     ss << "<br/>名称：" << name
         << "<br/>习惯描述：" << description
         << "<br/>目标周数：" << target
-        << "<br/>已打卡天数：" << finishedDays
+        << "<br/>目标频率：" << frequency << "次/周"
+        << "<br/>本周已打卡次数：" << checkinTimesThisWeek
+        << "<br/>已完成周数：" << finishedWeeks
         << "<br/>最近打卡日期：";
     if (finishedDates.empty()) {
         ss << "无" << endl;
@@ -87,23 +87,11 @@ string WeeklyHabit::toString() const {
     }
     ss << "</p>" << "</html>";
     return ss.str();
-    cout << "总进度：" << finishedWeeks << "周/" << target << "周" << endl;
-    cout << "本周打卡进度：" << checkinTimesThisWeek << "次/" << frequency << "次" << endl;
-    cout << "最近打卡日期：";
-    if (finishedDates.empty()) {
-        cout << "无" << endl;
-    } else {
-        const Date &last = finishedDates.back();
-        cout << last.year << "-" << last.month << "-" << last.day << endl;
-    }
-    return "";
 }
 
 string WeeklyHabit::toSimpleString() const {
     stringstream ss;
-    ss << "<html>"
-        << "<div style='width: 140px; word-wrap: break-word; white-space: pre-wrap;'>"
-        << "<p>[每周习惯]";
+    ss << "<html>" << "<p>[每周习惯]";
     if (isCompleted()) {
         ss << "(已完成)";
     }

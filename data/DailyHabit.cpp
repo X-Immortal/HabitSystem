@@ -34,9 +34,7 @@ bool DailyHabit::checkin() {
 
 string DailyHabit::toString() const {
     stringstream ss;
-    ss << "<html>"
-        << "<div style='width: 140px; word-wrap: break-word; white-space: pre-wrap;'>"
-        << "<p>[每日习惯]";
+    ss << "<html>" << "<p>[每日习惯]";
     if (isCompleted()) {
         ss << "(已完成)";
     }
@@ -44,7 +42,7 @@ string DailyHabit::toString() const {
         << "<br/>习惯描述：" << description
         << "<br/>目标天数：" << target
         << "<br/>已打卡天数：" << finishedDays
-        << "<br/>最近打卡日期：";
+        << "<br/>历史打卡日期：";
     if (finishedDates.empty()) {
         ss << "无" << endl;
     } else {
@@ -57,9 +55,7 @@ string DailyHabit::toString() const {
 
 string DailyHabit::toSimpleString() const {
     stringstream ss;
-    ss << "<html>"
-        << "<div style='word-wrap: break-word; white-space: pre-wrap;'>"
-        << "<p>[每日习惯]";
+    ss << "<html>" << "<p>[每日习惯]";
     if (isCompleted()) {
         ss << "(已完成)";
     }

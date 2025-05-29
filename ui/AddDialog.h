@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
+#include "../data/Habit.h"
 
 class AddDialog : public QDialog {
     Q_OBJECT
@@ -65,7 +66,10 @@ class AddDialog : public QDialog {
     } weeklyTarget;
 
 public:
-    AddDialog(QWidget *parent);
+    explicit AddDialog(QWidget *parent);
+
+signals:
+    void habitAdded();
 
 private:
     void initDialog();

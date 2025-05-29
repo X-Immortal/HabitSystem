@@ -7,19 +7,24 @@
 
 #include <QMainWindow>
 #include "AddDialog.h"
+#include "DeleteDialog.h"
+#include "InformationDialog.h"
 #include "../data/Habit.h"
 
 class SystemWindow : public QMainWindow {
     Q_OBJECT
     QWidget *scrollContainer;
     AddDialog *addDialog;
+    DeleteDialog *deleteDialog;
+    InformationDialog *informationDialog;
+    enum State {ALL, DAILY, WEEKLY} state = ALL;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 public:
     explicit SystemWindow(QWidget *parent = nullptr);
-    void loadCards(vector<Habit *> habits);
+    void loadCards();
 
 private:
     void initWindow();
