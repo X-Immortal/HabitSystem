@@ -9,6 +9,8 @@
 #include "AddDialog.h"
 #include "DeleteDialog.h"
 #include "InformationDialog.h"
+#include "CheckinDialog.h"
+#include "CheckinSucceededDialog.h"
 #include "../data/Habit.h"
 
 class SystemWindow : public QMainWindow {
@@ -17,6 +19,8 @@ class SystemWindow : public QMainWindow {
     AddDialog *addDialog;
     DeleteDialog *deleteDialog;
     InformationDialog *informationDialog;
+    CheckinDialog *checkinDialog;
+    CheckinSucceededDialog *checkinSucceededDialog;
     enum State {ALL, DAILY, WEEKLY} state = ALL;
 
 protected:

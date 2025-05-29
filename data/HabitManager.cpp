@@ -7,9 +7,9 @@
 using namespace std;
 
 #if defined(_WIN32)
-const string HabitManager::filePath = ".\\file\\habits.txt";
+const string HabitManager::filePath = ".\\.file\\habits.txt";
 #else
-const string HabitManager::filePath = "./file/habits.txt";
+const string HabitManager::filePath = "./.file/habits.txt";
 #endif
 
 vector<Habit *> HabitManager::habits;
@@ -17,7 +17,7 @@ vector<Habit *> HabitManager::habits;
 HabitManager::StaticInitializer HabitManager::initializer;
 
 HabitManager::StaticInitializer::StaticInitializer() {
-    loadFromFile();
+    load();
 }
 
 HabitManager::~HabitManager() {
@@ -69,7 +69,7 @@ vector<Habit *> HabitManager::getHabits() {
 
 
 //打卡习惯
-bool HabitManager::checkin(const string& habitName) {
+bool HabitManager::checkin(const string &habitName) {
     for (Habit *habit: habits) {
         if (habit->getName() == habitName) {
             return habit->checkin();
@@ -80,27 +80,26 @@ bool HabitManager::checkin(const string& habitName) {
 }
 
 //文件存储
-void HabitManager::saveToFile() {
+void HabitManager::save() {
     filesystem::path path(filePath);
     error_code ec;
     if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
-        cerr << "Failed to create directory！" << endl;
-        return;
+        throw runtime_error("Failed to create directory！");
     }
 
     ofstream out(filePath);
     if (!out) {
-        cerr << "Failed to save file!" << endl;
-        return;
+        throw runtime_error("Failed to open file for writing！");
     }
-    out << habits.size() << endl;
+    stringstream ss;
     for (Habit *habit: habits) {
-        habit->saveToFile(out);
+        ss << habit->serialize();
     }
+    out << ss.str();
     cout << "File saved!" << endl;
 }
 
-void HabitManager::loadFromFile() {
+void HabitManager::load() {
     filesystem::path path(filePath);
     error_code ec;
     if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
@@ -113,74 +112,41 @@ void HabitManager::loadFromFile() {
         // 文件不存在时，创建一个空文件
         ofstream out(filePath);
         if (!out) {
-            cerr << "Failed to create file！" << endl;
-            return;
+            throw runtime_error("Failed to create file!");
         }
-        out << 0 << endl; // 写入0表示没有习惯
-        out.close();
-        cout << "File created" << endl;
+        cout << "File created!" << endl;
         return;
     }
     for (Habit *habit: habits) {
         delete habit;
     }
     habits.clear();
-    int count;
-    in >> count;
-    in.ignore();
-    for (int i = 0; i < count; ++i) {
-        string type;
-        getline(in, type);
-        Habit *habit = nullptr;
-        if (type == "DailyHabit")
+    stringstream buffer;
+    buffer << in.rdbuf();
+
+    // 解析缓冲区内容
+    stringstream habitStream;
+    string line;
+    Habit *habit = nullptr;
+    while (getline(buffer, line)) {
+        if (line == "[DailyHabit]") {
             habit = new DailyHabit();
-        else if (type == "WeeklyHabit")
+        } else if (line == "[WeeklyHabit]") {
             habit = new WeeklyHabit();
-        if (habit) {
-            habit->loadFromFile(in);
-            habits.push_back(habit);
-        }
-    }
-}
-
-void HabitManager::showMenu() {
-    cout << "=====习惯管理=====" << endl;
-    cout << "1、添加习惯" << endl;
-    cout << "2、删除习惯" << endl;
-    cout << "3、打卡" << endl;
-    cout << "4、查看所有习惯" << endl;
-    cout << "5、查看Daily习惯" << endl;
-    cout << "6、查看Weekly习惯" << endl;
-    cout << "7、保存数据" << endl;
-    cout << "8、退出程序" << endl;
-}
-
-void HabitManager::addHabit() {
-    string name, d, type;
-    int T, fre;
-    cout << "请输入习惯名称：";
-    getline(cin, name);
-    cout << "请输入习惯描述：";
-    getline(cin, d);
-    while (true) {
-        cout << "选择习惯类型（D-Daily,W-Weekly)";
-        getline(cin, type);
-        if (type == "D" || type == "d") {
-            cout << "请输入目标天数：";
-            cin >> T;
-            add(new DailyHabit(name, d, T));
-            cout << "习惯添加成功！" << endl;
-            break;
-        } else if (type == "W" || type == "w") {
-            cout << "请输入目标周数：";
-            cin >> T;
-            cout << "请输入每周打卡次数：";
-            cin >> fre;
-            add(new WeeklyHabit(name, d, T, fre));
-            cout << "习惯添加成功！" << endl;
-            break;
         } else {
-            cout << "输入错误！请重新输入！" << endl;
+            throw runtime_error("Invalid file format");
+        }
+
+        habitStream << line << endl;
+
+        while (getline(buffer, line)) {
+            habitStream << line << endl;
+            if (line == "[END]") {
+                habit->deserialize(habitStream.str());
+                habits.push_back(habit);
+                habitStream.str("");
+                break;
+            }
         }
     }
 }

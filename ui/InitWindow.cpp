@@ -3,20 +3,18 @@
 //
 #include "InitWindow.h"
 #include <QApplication>
-#include <QPushButton>
+#include "PushButton.h"
 #include <QLabel>
 
 InitWindow::InitWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
     initButton();
-    systemWindow = new SystemWindow(this);
 }
-
-InitWindow::~InitWindow() = default;
 
 void InitWindow::initWindow() {
     setWindowTitle("习惯打卡管理系统");
     setFixedSize(400, 200);
+    setAttribute(Qt::WA_DeleteOnClose);
 
     auto *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -36,40 +34,18 @@ void InitWindow::initWindow() {
 }
 
 void InitWindow::initButton() {
-    QPushButton *startButton = new QPushButton("进入系统", centralWidget());
-    startButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: bold 20px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    PushButton *startButton = new PushButton("进入系统", centralWidget());
     startButton->setGeometry(70, 100, 100, 50);
-    InitWindow *initWindow = this;
-    connect(startButton, &QPushButton::clicked, this, [=] {
-        systemWindow->move(initWindow->pos());
-        systemWindow->show();
-        initWindow->hide();
+    startButton->addStyle("QPushButton { font-size: 20px; }");
+    connect(startButton, &PushButton::clicked, this, [=] {
+        emit enterSystemRequested();
+        this->close();
     });
 
-    QPushButton *exitButton = new QPushButton("关闭", centralWidget());
-    exitButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: bold 20px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    PushButton *exitButton = new PushButton("关闭", centralWidget());
     exitButton->setGeometry(220, 100, 100, 50);
+    exitButton->addStyle("QPushButton { font-size: 20px; }");
     connect(exitButton, &QPushButton::clicked, this,  [=] {
-        qApp->closeAllWindows();
+        this->close();
     });
-}
-
-void InitWindow::closeEvent(QCloseEvent *event) {
-    qApp->closeAllWindows();
 }

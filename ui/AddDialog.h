@@ -31,12 +31,12 @@ class AddDialog : public QDialog {
         bool check() const;
     } description;
 
-    struct Target {
+    struct Type {
         QComboBox *typeBox;
         QLabel *prompt;
 
         bool check() const;
-    } target;
+    } type;
 
     struct DailyTarget {
         QLabel *targetLabel;

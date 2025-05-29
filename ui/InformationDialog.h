@@ -13,16 +13,14 @@
 class InformationDialog : public QDialog {
     Q_OBJECT
 
+protected:
     QLabel *infoLabel;
     Habit *habit;
+    QWidget *scrollContainer;
 
 public:
     InformationDialog(QWidget *parent = nullptr);
-    void setHabit(Habit *habit);
-
-private:
-    void initDialog();
-    void showInfo() const;
+    void show(Habit *habit);
 };
 
 #endif //INFOMATIONDIALOG_H

@@ -3,6 +3,7 @@
 //
 
 #include "DeleteDialog.h"
+#include "PushButton.h"
 #include <QLabel>
 #include <QPushButton>
 
@@ -11,8 +12,9 @@ DeleteDialog::DeleteDialog(QWidget *parent) : QDialog(parent) {
     initButton();
 }
 
-void DeleteDialog::setHabit(Habit *habit) {
+void DeleteDialog::show(Habit *habit) {
     this->habit = habit;
+    QDialog::show();
 }
 
 void DeleteDialog::initDialog() {
@@ -21,20 +23,27 @@ void DeleteDialog::initDialog() {
     setStyleSheet("background-color: #e3e3e3;");
 
     QLabel *prompt = new QLabel("确定要删除该习惯吗？", this);
-    prompt->setGeometry(30, 30, 200, 25);
-    prompt->setStyleSheet("font-size: 20px;");
+    prompt->setGeometry(30, 10, 200, 50);
+    prompt->setStyleSheet(
+        "QLabel {"
+        "   font-size: 20px;"
+        "   color: black;"
+        "}"
+    );
 }
 
 void DeleteDialog::initButton() {
-    QPushButton *confirmButton = new QPushButton("确定", this);
-    confirmButton->setGeometry(50, 70, 50, 20);
+    PushButton *confirmButton = new PushButton("确定", this);
+    confirmButton->addStyle("QPushButton { font-size: 15px; }");
+    confirmButton->setGeometry(45, 60, 60, 25);
     connect(confirmButton, &QPushButton::clicked, this, [=] {
         this->close();
         emit deleteConfirmed(this->habit);
     });
 
-    QPushButton *cancelButton = new QPushButton("取消", this);
-    cancelButton->setGeometry(150, 70, 50, 20);
+    PushButton *cancelButton = new PushButton("取消", this);
+    cancelButton->addStyle("QPushButton { font-size: 15px; }");
+    cancelButton->setGeometry(150, 60, 60, 25);
     connect(cancelButton, &QPushButton::clicked, this, [=] {
         this->close();
     });

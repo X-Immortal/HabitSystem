@@ -7,8 +7,14 @@
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    InitWindow window;
-    // SystemWindow window;
-    window.show();
-    return QApplication::exec();
+
+    InitWindow *initWindow = new InitWindow();
+
+    QObject::connect(initWindow, &InitWindow::enterSystemRequested, [=] {
+        SystemWindow *systemWindow = new SystemWindow();
+        systemWindow->show();
+    });
+
+    initWindow->show();
+    return app.exec();
 }

@@ -5,12 +5,15 @@
 #include <QApplication>
 #include <QWidget>
 #include <QLabel>
-#include <QPushButton>
+#include "PushButton.h"
 #include <QDate>
 #include <QScrollArea>
 #include <QSizePolicy>
 #include <QHBoxLayout>
 #include "../data/HabitManager.h"
+#include "CheckinSucceededDialog.h"
+#include "AddDialog.h"
+#include "DeleteDialog.h"
 
 SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
@@ -24,6 +27,7 @@ SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
 void SystemWindow::initWindow() {
     setWindowTitle("习惯打卡管理系统");
     setFixedSize(700, 500);
+    setAttribute(Qt::WA_DeleteOnClose);
 
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -55,49 +59,27 @@ void SystemWindow::initText() {
 
 
 void SystemWindow::initButton() {
-    QPushButton *allButton = new QPushButton("All", centralWidget());
-    allButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: 30px Times-New-Roman;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
-    allButton->setGeometry(550, 170, 100, 50);
+    QString styleSheet = "QPushButton { font-size: 20px; font: Times-New-Roman; border-radius: 40px; }";
+
+    PushButton *allButton = new PushButton("All", centralWidget());
+    allButton->addStyle(styleSheet);
+    allButton->setGeometry(550, 160, 80, 80);
     connect(allButton, &QPushButton::clicked, this, [=]() {
         state = ALL;
         loadCards();
     });
 
-    QPushButton *dailyButton = new QPushButton("Daily", centralWidget());
-    dailyButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: 30px Times-New-Roman;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
-    dailyButton->setGeometry(550, 270, 100, 50);
+    PushButton *dailyButton = new PushButton("Daily", centralWidget());
+    dailyButton->addStyle(styleSheet);
+    dailyButton->setGeometry(550, 260, 80, 80);
     connect(dailyButton, &QPushButton::clicked, this, [=]() {
         state = DAILY;
         loadCards();
     });
 
-    QPushButton *weeklyButton = new QPushButton("Weekly", centralWidget());
-    weeklyButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: 30px Times-New-Roman;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
-    weeklyButton->setGeometry(550, 370, 100, 50);
+    PushButton *weeklyButton = new PushButton("Weekly", centralWidget());
+    weeklyButton->addStyle(styleSheet);
+    weeklyButton->setGeometry(550, 360, 80, 80);
     connect(weeklyButton, &QPushButton::clicked, this, [=]() {
         state = WEEKLY;
         loadCards();
@@ -105,7 +87,7 @@ void SystemWindow::initButton() {
 }
 
 void SystemWindow::closeEvent(QCloseEvent *event) {
-    HabitManager::saveToFile();
+    HabitManager::save();
     qApp->quit();
 }
 
@@ -138,7 +120,7 @@ void SystemWindow::initScrollArea() {
 
 void SystemWindow::addCard(Habit *habit) {
     QLabel *habitLabel = new QLabel(
-        QString::fromStdString(habit->toSimpleString()),
+        habit->toSimpleString(),
         scrollContainer
     );
     habitLabel->setStyleSheet(
@@ -153,56 +135,25 @@ void SystemWindow::addCard(Habit *habit) {
     habitLabel->setWordWrap(true);
     scrollContainer->layout()->addWidget(habitLabel);
 
-    QPushButton *checkinButton = new QPushButton("打卡", habitLabel);
-    checkinButton->setStyleSheet(
-        "QPushButton{"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: bold 15px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    PushButton *checkinButton = new PushButton("打卡", habitLabel);
+    checkinButton->addStyle("QPushButton{ font: bold 15px; }");
     checkinButton->setGeometry(20, 210, 50, 25);
     connect(checkinButton, &QPushButton::clicked, this, [=]() {
-        habit->checkin();
-        habitLabel->setText(QString::fromStdString(habit->toSimpleString()));
+        checkinDialog->show(habit);
     });
 
-    QPushButton *deleteButton = new QPushButton("删除", habitLabel);
-    deleteButton->setStyleSheet(
-        "QPushButton{"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: bold 15px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    PushButton *deleteButton = new PushButton("删除", habitLabel);
+    deleteButton->addStyle("QPushButton{ font: bold 15px; }");
     deleteButton->setGeometry(80, 210, 50, 25);
-    connect(deleteButton, &QPushButton::clicked, this, [=]() {
-        deleteDialog->setHabit(habit);
-        deleteDialog->show();
-    });
-    connect(deleteDialog, &DeleteDialog::deleteConfirmed, this, [=](Habit *habit) {
-        HabitManager::del(habit->getName());
-        loadCards();
+    connect(deleteButton, &QPushButton::clicked, this, [=] {
+        deleteDialog->show(habit);
     });
 
-    QPushButton *infoButton = new QPushButton("详情", habitLabel);
-    infoButton->setStyleSheet(
-        "QPushButton{"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: bold 10px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    PushButton *infoButton = new PushButton("详情", habitLabel);
+    infoButton->addStyle("QPushButton{ font: bold; }");
     infoButton->setGeometry(100, 20, 40, 15);
     connect(infoButton, &QPushButton::clicked, this, [=]() {
-        informationDialog->setHabit(habit);
-        informationDialog->show();
+        informationDialog->show(habit);
     });
 }
 
@@ -257,4 +208,15 @@ void SystemWindow::initDialog() {
     addDialog = new AddDialog(this);
     deleteDialog = new DeleteDialog(this);
     informationDialog = new InformationDialog(this);
+    checkinDialog = new CheckinDialog(this);
+    checkinSucceededDialog = new CheckinSucceededDialog(this);
+    connect(checkinDialog, &CheckinDialog::checkinConfirmed, this, [=](Habit *habit) {
+        habit->checkin();
+        loadCards();
+        checkinSucceededDialog->show(habit->isCompleted());
+    });
+    connect(deleteDialog, &DeleteDialog::deleteConfirmed, this, [=](Habit *habit) {
+        HabitManager::del(habit->getName());
+        loadCards();
+    });
 }

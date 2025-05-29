@@ -5,16 +5,17 @@
 #include "WeeklyHabit.h"
 #include <iostream>
 #include <sstream>
+#include "../tools/StringUtil.h"
 
 WeeklyHabit::WeeklyHabit() {
 }
 
 WeeklyHabit::WeeklyHabit(string name, string description, int target, int frequency):
-    Habit(name, description, target), frequency(frequency), finishedWeeks(0), checkinTimesThisWeek(0),
+    Habit(name, description, target), frequency(frequency), finishedWeeks(0), finishedDaysThisWeek(0),
     firstDayOfThisWeek(Date::today().getFirstDayOfWeek()) {}
 
 void WeeklyHabit::checkWeekTask() {
-    if (checkinTimesThisWeek >= frequency) {
+    if (finishedDaysThisWeek >= frequency) {
         finishedWeeks++;
         cout << "恭喜你！第" << finishedWeeks << "周任务已完成！" << endl;
         if (isCompleted()) {
@@ -26,16 +27,16 @@ void WeeklyHabit::checkWeekTask() {
 void WeeklyHabit::updateCurrentWeek() {
     Date D1 = Date::today().getFirstDayOfWeek();
     if (D1 != firstDayOfThisWeek) {
-        if (checkinTimesThisWeek >= frequency) {
+        if (finishedDaysThisWeek >= frequency) {
             finishedWeeks++;
             cout << "恭喜你！第" << finishedWeeks << "周任务已完成！" << endl;
             if (isCompleted()) {
                 cout << "恭喜你！" << name << "习惯已完成！" << endl;
             }
         } else {
-            cout << "上周未达标(" << checkinTimesThisWeek << "/" << frequency << ")！" << endl;
+            cout << "上周未达标(" << finishedDaysThisWeek << "/" << frequency << ")！" << endl;
         }
-        checkinTimesThisWeek = 0;
+        finishedDaysThisWeek = 0;
         firstDayOfThisWeek = D1;
     }
 } //检查是否为新的一周，若是，则更新
@@ -46,7 +47,7 @@ bool WeeklyHabit::checkin() {
     }
     updateCurrentWeek();
     Date today = Date::today();
-    if (checkinTimesThisWeek >= frequency) {
+    if (finishedDaysThisWeek >= frequency) {
         cout << "本周打卡已满！" << endl;
         return false;
     } //满的话return false
@@ -58,92 +59,145 @@ bool WeeklyHabit::checkin() {
             }
         }
         finishedDays++;
-        checkinTimesThisWeek++;
+        finishedDaysThisWeek++;
         finishedDates.push_back(today);
-        cout << "第" << finishedWeeks + 1 << "周的第" << checkinTimesThisWeek << "次打卡成功！" << endl;
+        cout << "第" << finishedWeeks + 1 << "周的第" << finishedDaysThisWeek << "次打卡成功！" << endl;
         checkWeekTask();
         return true;
     } //不满的话检查今天是否已经打卡，已打卡返回false 未打卡+一下天数然后true
 }
 
-string WeeklyHabit::toString() const {
-    stringstream ss;
-    ss << "<html>" << "<p>[每周习惯]";
-    if (isCompleted()) {
-        ss << "(已完成)";
-    }
-    ss << "<br/>名称：" << name
-        << "<br/>习惯描述：" << description
-        << "<br/>目标周数：" << target
-        << "<br/>目标频率：" << frequency << "次/周"
-        << "<br/>本周已打卡次数：" << checkinTimesThisWeek
-        << "<br/>已完成周数：" << finishedWeeks
-        << "<br/>最近打卡日期：";
+QString WeeklyHabit::toString() const {
+    stringstream historyDates;
     if (finishedDates.empty()) {
-        ss << "无" << endl;
+        historyDates << "无";
     } else {
-        const Date &last = finishedDates.back();
-        ss << last.year << "-" << last.month << "-" << last.day << endl;
+        for (const Date& date : finishedDates) {
+            historyDates << "<br/>" << date.toString();
+        }
     }
-    ss << "</p>" << "</html>";
-    return ss.str();
+    return QString(
+        "<html>"
+        "   <p>"
+        "       [每日习惯]%1<br/>"
+        "       习惯名称：<br/>%2<br/>"
+        "       习惯描述：<br/>%3<br/>"
+        "       目标周数：%4<br/>"
+        "       目标频率：%5<br/>"
+        "       已完成周数：%6<br/>"
+        "       本周已打卡次数：%7<br/>"
+        "       已打卡天数：%8<br/>"
+        "       历史打卡日期：%9"
+        "   </p>"
+        "</html>"
+        )
+        .arg(
+            isCompleted() ? "(已完成)" : "",
+            name,
+            description,
+            QString::number(target),
+            QString::number(frequency),
+            QString::number(finishedWeeks),
+            QString::number(finishedDaysThisWeek),
+            QString::number(finishedDays),
+            historyDates.str()
+        );
 }
 
-string WeeklyHabit::toSimpleString() const {
-    stringstream ss;
-    ss << "<html>" << "<p>[每周习惯]";
-    if (isCompleted()) {
-        ss << "(已完成)";
-    }
-    ss << "<br/>名称：" << name
-        << "<br/>目标周数：" << target
-        << "<br/>目标频率：" << frequency << "次/周"
-        << "<br/>本周已打卡次数：" << checkinTimesThisWeek
-        << "<br/>已完成周数：" << finishedWeeks
-        << "<br/>最近打卡日期：";
-    if (finishedDates.empty()) {
-        ss << "无" << endl;
-    } else {
-        const Date &last = finishedDates.back();
-        ss << last.year << "-" << last.month << "-" << last.day << endl;
-    }
-    ss << "</p>" << "</html>";
-    return ss.str();
+QString WeeklyHabit::toSimpleString() const {
+    QString qname = QString::fromUtf8(name.c_str());
+    return QString(
+        "<html>"
+        "   <p>"
+        "       [每周习惯]%1<br/>"
+        "       名称：%2<br/>"
+        "       本周进度(天)：%3/%4<br/>"
+        "       总进度(周)：%5/%6<br/>"
+        "       上次打卡日期：%7"
+        "   </p>"
+        "</html>"
+        )
+        .arg(
+            isCompleted() ? "(已完成)" : "",
+            qname.length() > 5 ? qname.left(5) + "..." : qname,
+            QString::number(finishedDaysThisWeek), QString::number(target),
+            QString::number(finishedWeeks), QString::number(target),
+            finishedDates.empty() ? "无" : "<br/>" + finishedDates.back().toString()
+        );
 }
 
 
-void WeeklyHabit::saveToFile(ofstream &out) {
-    out << "WeeklyHabit" << endl;
-    out << name << endl;
-    out << description << endl;
-    out << target << endl; //目标周数
-    out << frequency << endl; //每周目标次数
-    out << finishedWeeks << endl; //已完成打卡周数
-    out << checkinTimesThisWeek << endl; //当前周打卡天数
-    out << firstDayOfThisWeek.year << " " << firstDayOfThisWeek.month << " " << firstDayOfThisWeek.day << endl;
-    //当前周周日
-    out << finishedDays << endl; //总的打卡天数
+string WeeklyHabit::serialize() {
+    stringstream out;
+    out << "[WeeklyHabit]" << endl
+        << "name=" << name << endl
+        << "description=" << StringUtil::escape(description) << endl
+        << "target=" << target << endl //目标周数
+        << "frequency=" << frequency << endl //每周目标次数
+        << "finishedWeeks=" << finishedWeeks << endl //已完成打卡周数
+        << "finishedDaysThisWeek=" << finishedDaysThisWeek << endl //当前周打卡天数
+        << "finishedDays=" << finishedDays << endl //总的打卡天数
+        << "[DATES]" << endl;
     for (const Date &date: finishedDates) {
         out << date.year << " " << date.month << " " << date.day << endl;
     } //已完成记录
+    out << "[END]" << endl;
+    return out.str();
 }
 
-void WeeklyHabit::loadFromFile(ifstream &in) {
-    getline(in, name);
-    getline(in, description);
-    in >> target >> frequency >> finishedWeeks >> checkinTimesThisWeek;
-    in.ignore();
-    int y, m, d;
-    in >> y >> m >> d;
-    firstDayOfThisWeek = Date(y, m, d);
-    in.ignore();
-    in >> finishedDays;
-    in.ignore(); //因为”>>"的输入不会消除换行符，所以得忽略一下换行符
+void WeeklyHabit::deserialize(const string &data) {
+    istringstream in(data);
+    string line;
+    getline(in, line);
+    if (line != "[WeeklyHabit]") {
+        throw runtime_error("Invalid data");
+    }
+
+    name = description = "";
+    target = finishedDays = 0;
     finishedDates.clear();
+
+    while (getline(in, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line == "[DATES]") {
+            break;
+        }
+
+        vector<string> kv = StringUtil::split(line, '=');
+        if (kv.size() != 2) {
+            throw runtime_error("Invalid data");
+        }
+        string k = kv[0];
+        string v = kv[1];
+        if (k == "name") {
+            name = v;
+        } else if (k == "description") {
+            description = StringUtil::unescape(v);
+        } else if (k == "target") {
+            target = stoi(v);
+        } else if (k == "frequency") {
+            frequency = stoi(v);
+        } else if (k == "finishedWeeks") {
+            finishedWeeks = stoi(v);
+        } else if (k == "finishedDaysThisWeek") {
+            finishedDaysThisWeek = stoi(v);
+        }else if (k == "finishedDays") {
+            finishedDays = stoi(v);
+        } else {
+            throw runtime_error("Invalid data");
+        }
+    }
     for (int i = 0; i < finishedDays; ++i) {
         int y, m, d;
         in >> y >> m >> d;
         in.ignore();
         finishedDates.push_back(Date(y, m, d));
+    }
+    getline(in, line);
+    if (line != "[END]") {
+        throw runtime_error("Invalid data");
     }
 }

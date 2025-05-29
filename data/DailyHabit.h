@@ -12,22 +12,22 @@
 using namespace std;
 
 class DailyHabit : public Habit {
-public:
     vector<Date> finishedDates;
 
+public:
     DailyHabit();
 
     DailyHabit(string name, string description, int target);
 
     bool checkin() override;
 
-    [[nodiscard]] string toString() const override;
+    [[nodiscard]] QString toString() const override;
 
-    [[nodiscard]] string toSimpleString() const override;
+    [[nodiscard]] QString toSimpleString() const override;
 
-    void saveToFile(ofstream &out) override;
+    string serialize() override;
 
-    void loadFromFile(ifstream &in) override;
+    void deserialize(const string &data) override;
 };
 
 #endif //DAILYHABIT_H

@@ -17,7 +17,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
 
-file(GLOB SOURCES "ui/*.cpp" "ui/*.h" "data/*.cpp" "data/*.h")
+file(GLOB SOURCES "ui/*.cpp" "ui/*.h" "data/*.cpp" "tools/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
 

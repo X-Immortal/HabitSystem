@@ -11,15 +11,13 @@ class InitWindow : public QMainWindow
 {
     Q_OBJECT
 
-protected:
-    void closeEvent(QCloseEvent *event) override;
-
 public:
     explicit InitWindow(QWidget *parent = nullptr);
-    ~InitWindow();
+
+signals:
+    void enterSystemRequested();
 
 private:
-    SystemWindow *systemWindow;
     void initWindow();
     void initButton();
 };

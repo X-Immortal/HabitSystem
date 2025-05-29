@@ -3,6 +3,7 @@
 //
 
 #include "DailyHabit.h"
+#include "../tools/StringUtil.h"
 #include <iostream>
 #include <sstream>
 
@@ -24,76 +25,122 @@ bool DailyHabit::checkin() {
     }
     finishedDates.push_back(today);
     finishedDays++;
-    if (isCompleted()) {
-        cout << "Good！" << name << "has been finished！" << endl;
-    } else {
-        cout << finishedDays << "checkin" << endl;
-    }
     return true;
 }
 
-string DailyHabit::toString() const {
-    stringstream ss;
-    ss << "<html>" << "<p>[每日习惯]";
-    if (isCompleted()) {
-        ss << "(已完成)";
-    }
-    ss << "<br/>名称：" << name
-        << "<br/>习惯描述：" << description
-        << "<br/>目标天数：" << target
-        << "<br/>已打卡天数：" << finishedDays
-        << "<br/>历史打卡日期：";
+QString DailyHabit::toString() const {
+    stringstream historyDates;
     if (finishedDates.empty()) {
-        ss << "无" << endl;
+        historyDates << "无";
     } else {
-        const Date &last = finishedDates.back();
-        ss << last.year << "-" << last.month << "-" << last.day << endl;
+        for (const Date& date : finishedDates) {
+            historyDates << "<br/>" << date.toString();
+        }
     }
-    ss << "</p>" << "</html>";
-    return ss.str();
+    return QString(
+        "<html>"
+        "   <p>"
+        "       [每日习惯]%1<br/>"
+        "       习惯名称：<br/>%2<br/>"
+        "       习惯描述：<br/>%3<br/>"
+        "       目标天数：%4<br/>"
+        "       已打卡天数：%5<br/>"
+        "       历史打卡日期：%6"
+        "   </p>"
+        "</html>"
+        )
+        .arg(
+            isCompleted() ? "(已完成)" : "",
+            name,
+            description,
+            QString::number(target),
+            QString::number(finishedDays),
+            historyDates.str()
+        );
 }
 
-string DailyHabit::toSimpleString() const {
-    stringstream ss;
-    ss << "<html>" << "<p>[每日习惯]";
-    if (isCompleted()) {
-        ss << "(已完成)";
-    }
-    ss << "<br/>名称：" << name
-        << "<br/>目标天数：" << target
-        << "<br/>已打卡天数：" << finishedDays
-        << "<br/>最近打卡日期：";
-    if (finishedDates.empty()) {
-        ss << "无" << endl;
-    } else {
-        const Date &last = finishedDates.back();
-        ss << last.year << "-" << last.month << "-" << last.day << endl;
-    }
-    ss << "</p>" << "</html>";
-    return ss.str();
+QString DailyHabit::toSimpleString() const {
+    QString qname = QString::fromUtf8(name.c_str());
+    return QString(
+        "<html>"
+        "   <p>"
+        "       [每日习惯]%1<br/>"
+        "       名称：%2<br/>"
+        "       进度(天)：%3/%4<br/>"
+        "       上次打卡日期：%5"
+        "   </p>"
+        "</html>"
+        )
+        .arg(
+            isCompleted() ? "(已完成)" : "",
+            qname.length() > 5 ? qname.left(5) + "..." : qname,
+            QString::number(finishedDays), QString::number(target),
+            finishedDates.empty() ? "无" : "<br/>" + finishedDates.back().toString()
+        );
 }
 
-void DailyHabit::saveToFile(ofstream &out) {
-    out << "DailyHabit" << endl;
-    out << name << endl;
-    out << description << endl;
-    out << target << endl;
-    out << finishedDays << endl;
+string DailyHabit::serialize() {
+    stringstream out;
+    out << "[DailyHabit]" << endl
+        << "name=" << name << endl
+        << "description=" << StringUtil::escape(description) << endl
+        << "target=" << target << endl
+        << "finishedDays=" << finishedDays << endl
+        << "[DATES]" << endl;
     for (const Date &date: finishedDates) {
         out << date.year << " " << date.month << " " << date.day << endl;
     }
+    out << "[END]" << endl;
+    return out.str();
 }
 
-void DailyHabit::loadFromFile(ifstream &in) {
-    getline(in, name);
-    getline(in, description);
-    in >> target >> finishedDays;
-    in.ignore(); //因为”>>"的输入不会消除换行符，所以得忽略一下换行符
+void DailyHabit::deserialize(const string &data) {
+    istringstream in(data);
+    string line;
+    getline(in, line);
+    if (line != "[DailyHabit]") {
+        throw runtime_error("Invalid data");
+    }
+
+    name = description = "";
+    target = finishedDays = 0;
     finishedDates.clear();
+
+    while (getline(in, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line == "[DATES]") {
+            break;
+        }
+
+        vector<string> kv = StringUtil::split(line, '=');
+        if (kv.size() != 2) {
+            throw runtime_error("Invalid data");
+        }
+        string k = kv[0];
+        string v = kv[1];
+        if (k == "name") {
+            name = v;
+        } else if (k == "description") {
+            description = StringUtil::unescape(v);
+        } else if (k == "target") {
+            target = stoi(v);
+        } else if (k == "finishedDays") {
+            finishedDays = stoi(v);
+        } else {
+            throw runtime_error("Invalid data");
+        }
+    }
     for (int i = 0; i < finishedDays; ++i) {
         int y, m, d;
         in >> y >> m >> d;
         in.ignore();
         finishedDates.push_back(Date(y, m, d));
+    }
+    getline(in, line);
+    if (line != "[END]") {
+        throw runtime_error("Invalid data");
     }
 }

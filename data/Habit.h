@@ -6,6 +6,7 @@
 #define HABIT_H
 
 #include <fstream>
+#include <QString>
 
 using namespace std;
 
@@ -35,14 +36,13 @@ public:
 
     virtual bool checkin() = 0;
 
-    [[nodiscard]] virtual string toString() const = 0;
+    [[nodiscard]] virtual QString toString() const = 0;
 
-    [[nodiscard]] virtual string toSimpleString() const = 0;
+    [[nodiscard]] virtual QString toSimpleString() const = 0;
 
-    virtual void saveToFile(ofstream &out) = 0;
+    virtual string serialize() = 0;
 
-    virtual void loadFromFile(ifstream &in) = 0;
-
+    virtual void deserialize(const string &data) = 0;
 };
 
 #endif //HABIT_H

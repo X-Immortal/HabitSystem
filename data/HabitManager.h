@@ -42,13 +42,9 @@ public:
     static bool checkin(const string &habitName);
 
     //文件存储
-    static void saveToFile();
+    static void save();
 
-    static void loadFromFile();
-
-    static void showMenu();
-
-    static void addHabit();
+    static void load();
 };
 
 #endif //HABITMANAGER_H

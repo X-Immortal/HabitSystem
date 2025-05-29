@@ -16,7 +16,7 @@ class DeleteDialog : public QDialog {
 public:
     explicit DeleteDialog(QWidget *parent = nullptr);
 
-    void setHabit(Habit *habit);
+    void show(Habit *habit);
 
 signals:
     void deleteConfirmed(Habit *habit);

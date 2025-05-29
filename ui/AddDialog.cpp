@@ -3,8 +3,7 @@
 //
 
 #include "AddDialog.h"
-#include <QPushButton>
-
+#include "PushButton.h"
 #include "SystemWindow.h"
 #include "../data/DailyHabit.h"
 #include "../data/HabitManager.h"
@@ -72,7 +71,7 @@ bool AddDialog::Description::check() const {
     return true;
 }
 
-bool AddDialog::Target::check() const {
+bool AddDialog::Type::check() const {
     assert(typeBox && prompt);
     if (typeBox->currentIndex() == -1) {
         prompt->show();
@@ -308,11 +307,11 @@ void AddDialog::initSpinBox() {
 
 
 void AddDialog::initComboBox() {
-    target.typeBox = new QComboBox(this);
-    target.typeBox->setGeometry(70, 320, 300, 30);
-    target.typeBox->setPlaceholderText("习惯类型");
-    target.typeBox->addItems({"每日习惯", "每周习惯"});
-    target.typeBox->setStyleSheet(
+    type.typeBox = new QComboBox(this);
+    type.typeBox->setGeometry(70, 320, 300, 30);
+    type.typeBox->setPlaceholderText("习惯类型");
+    type.typeBox->addItems({"每日习惯", "每周习惯"});
+    type.typeBox->setStyleSheet(
         "QComboBox{"
         "   border: 1px solid #000000;"
         "   padding: 5px 10px;"
@@ -325,18 +324,18 @@ void AddDialog::initComboBox() {
         "}"
     );
 
-    target.prompt = new QLabel("请选择习惯类型！", this);
-    target.prompt->setGeometry(80, 355, 100, 10);
-    target.prompt->setStyleSheet(
+    type.prompt = new QLabel("请选择习惯类型！", this);
+    type.prompt->setGeometry(80, 355, 100, 10);
+    type.prompt->setStyleSheet(
         "QLabel {"
         "   color: #FF0000;"
         "   font: 10px;"
         "   background-color: transparent;"
         "}"
     );
-    target.prompt->hide();
+    type.prompt->hide();
 
-    connect(target.typeBox, &QComboBox::currentIndexChanged, this, [=](int index) {
+    connect(type.typeBox, &QComboBox::currentIndexChanged, this, [=](int index) {
         switch (index) {
             case 0:
                 weeklyTarget.hide();
@@ -353,46 +352,28 @@ void AddDialog::initComboBox() {
 }
 
 void AddDialog::initButton() {
-    QPushButton *confirmButton = new QPushButton("确定", this);
+    PushButton *confirmButton = new PushButton("确定", this);
     confirmButton->setGeometry(200, 470, 80, 20);
-    confirmButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: 20px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
-    connect(confirmButton, &QPushButton::clicked, this, [=] {
-        addHabit();
-    });
+    confirmButton->addStyle("QPushButton { font-size: 20px; }");
+    connect(confirmButton, &QPushButton::clicked, this, &addHabit);
 
-    QPushButton *cancelButton = new QPushButton("取消", this);
+    PushButton *cancelButton = new PushButton("取消", this);
     cancelButton->setGeometry(300, 470, 80, 20);
-    cancelButton->setStyleSheet(
-        "QPushButton {"
-        "   color: #000000;"
-        "   background-color: #f9f4f4;"
-        "   border: 1px solid #000000;"
-        "   font: 20px;"
-        "}"
-        "QPushButton:hover { background-color: #b0aeae; }"
-    );
+    cancelButton->addStyle("QPushButton { font-size: 20px; }");
     connect(cancelButton, &QPushButton::clicked, this, &AddDialog::close);
 }
 
 void AddDialog::addHabit() {
-    if (!name.check() | !description.check() | !target.check() |
-        ((target.typeBox->currentIndex() == 0 && !dailyTarget.check()) ||
-            target.typeBox->currentIndex() == 1 && !weeklyTarget.check())) {
+    if (!name.check() | !description.check() | !type.check() |
+        ((type.typeBox->currentIndex() == 0 && !dailyTarget.check()) ||
+            type.typeBox->currentIndex() == 1 && !weeklyTarget.check())) {
         return;
     }
 
     string name = this->name.nameEdit->text().toStdString();
     string description = this->description.descriptionEdit->toPlainText().toStdString();
 
-    if (target.typeBox->currentIndex() == 0) {
+    if (type.typeBox->currentIndex() == 0) {
         int targetDays = dailyTarget.targetEdit->value();
         DailyHabit *dailyHabit = new DailyHabit(name, description, targetDays);
         HabitManager::add(dailyHabit);
@@ -412,5 +393,5 @@ void AddDialog::clear() {
     this->description.descriptionEdit->clear();
     this->dailyTarget.hide();
     this->weeklyTarget.hide();
-    this->target.typeBox->setCurrentIndex(-1);
+    this->type.typeBox->setCurrentIndex(-1);
 }

@@ -13,9 +13,8 @@ class CheckinDialog : public InformationDialog {
 public:
     CheckinDialog(QWidget *parent = nullptr);
 
-private:
-    void initDialog();
-    void initButton();
+signals:
+    void checkinConfirmed(Habit *habit);
 };
 
 #endif //CHECKINDIALOG_H

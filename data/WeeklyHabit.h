@@ -12,13 +12,13 @@
 using namespace std;
 
 class WeeklyHabit : public Habit {
-public:
     int frequency; //每周需要打卡次数
     int finishedWeeks; //已完成打卡周数
-    int checkinTimesThisWeek; //当前周打卡次数
+    int finishedDaysThisWeek; //当前周打卡次数
     Date firstDayOfThisWeek;
     vector<Date> finishedDates;
 
+public:
     WeeklyHabit();
 
     WeeklyHabit(string name, string description, int target, int frequency);
@@ -29,13 +29,13 @@ public:
 
     bool checkin() override;
 
-    [[nodiscard]] string toString() const override;
+    [[nodiscard]] QString toString() const override;
 
-    [[nodiscard]] string toSimpleString() const override;
+    [[nodiscard]] QString toSimpleString() const override;
 
-    void saveToFile(ofstream &out) override;
+    string serialize() override;
 
-    void loadFromFile(ifstream &in) override;
+    void deserialize(const string &data) override;
 };
 
 #endif //WEEKLYHABIT_H
