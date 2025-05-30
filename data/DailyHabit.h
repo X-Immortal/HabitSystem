@@ -5,14 +5,11 @@
 #ifndef DAILYHABIT_H
 #define DAILYHABIT_H
 
-#include <vector>
-#include "Date.h"
 #include "Habit.h"
 
 using namespace std;
 
 class DailyHabit : public Habit {
-    vector<Date> finishedDates;
 
 public:
     DailyHabit();

@@ -2,6 +2,8 @@
 // Created by xyx on 25-5-22.
 //
 #include "SystemWindow.h"
+
+#include <iostream>
 #include <QApplication>
 #include <QWidget>
 #include <QLabel>
@@ -14,6 +16,7 @@
 #include "CheckinSucceededDialog.h"
 #include "AddDialog.h"
 #include "DeleteDialog.h"
+#include "WeeklyAchievementDialog.h"
 
 SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
@@ -36,54 +39,69 @@ void SystemWindow::initWindow() {
 }
 
 void SystemWindow::initText() {
-    QLabel *title = new QLabel("习惯打卡管理系统", centralWidget());
-    title->setStyleSheet(
-        "QLabel {"
-        "   font: bold 40px;"
-        "   color: #000000;"
-        "   background: transparent;"
-        "}"
-    );
-    title->setGeometry(190, 50, 350, 50);
+    QWidget *textContainer = new QWidget(this);
+    textContainer->setGeometry(0, 45, width(), 90);
+    textContainer->setStyleSheet("background: transparent;");
 
-    QLabel *nowtime = new QLabel("今天是" + QDate::currentDate().toString("yyyy年MM月dd日"), centralWidget());
-    nowtime->setStyleSheet(
-        "QLabel {"
-        "   font: 20px;"
-        "   color: #000000;"
-        "   background: transparent;"
-        "}"
-    );
-    nowtime->setGeometry(240, 110, 210, 30);
+    QVBoxLayout *textLayout = new QVBoxLayout(textContainer);
+    textLayout->setSpacing(10);
+    textLayout->setContentsMargins(0, 0, 0, 0);
+    textContainer->setLayout(textLayout);
+
+    QLabel *title = new QLabel("习惯打卡管理系统", centralWidget());
+    title->setStyleSheet("QLabel { font: bold 40px; color: black; background: transparent; }");
+    title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    title->setAlignment(Qt::AlignCenter);
+    textLayout->addWidget(title);
+
+    QPushButton *nowtime = new QPushButton("今天是" + QString::fromStdString(today.toString()), centralWidget());
+    nowtime->setStyleSheet("QPushButton { font: 20px; color: black; background: transparent; border: 0px; } QPushButton:hover { background: transparent; }");
+    nowtime->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    connect(nowtime, &QPushButton::clicked, this, [=] {
+        cout << "nowtime clicked!" << endl;
+    });
+    textLayout->addWidget(nowtime);
 }
 
 
 void SystemWindow::initButton() {
+    QWidget *buttonContainer = new QWidget(this);
+    buttonContainer->setGeometry(580, 150, 80, 300);
+    buttonContainer->setStyleSheet("background: transparent;");
+
+    QVBoxLayout *buttonLayout = new QVBoxLayout(buttonContainer);
+    buttonLayout->setSpacing(20);
+    buttonLayout->setContentsMargins(0, 0, 0, 0);
+    buttonContainer->setLayout(buttonLayout);
+
     QString styleSheet = "QPushButton { font-size: 20px; font: Times-New-Roman; border-radius: 40px; }";
 
     PushButton *allButton = new PushButton("All", centralWidget());
     allButton->addStyle(styleSheet);
-    allButton->setGeometry(550, 160, 80, 80);
+    allButton->setFixedSize(80, 80);
     connect(allButton, &QPushButton::clicked, this, [=]() {
         state = ALL;
         loadCards();
     });
+    buttonLayout->addWidget(allButton);
 
     PushButton *dailyButton = new PushButton("Daily", centralWidget());
     dailyButton->addStyle(styleSheet);
-    dailyButton->setGeometry(550, 260, 80, 80);
+    dailyButton->setFixedSize(80, 80);
     connect(dailyButton, &QPushButton::clicked, this, [=]() {
         state = DAILY;
         loadCards();
     });
+    buttonLayout->addWidget(dailyButton);
 
     PushButton *weeklyButton = new PushButton("Weekly", centralWidget());
     weeklyButton->addStyle(styleSheet);
-    weeklyButton->setGeometry(550, 360, 80, 80);
+    weeklyButton->setFixedSize(80, 80);
     connect(weeklyButton, &QPushButton::clicked, this, [=]() {
         state = WEEKLY;
         loadCards();
     });
+    buttonLayout->addWidget(weeklyButton);
 }
 
 void SystemWindow::closeEvent(QCloseEvent *event) {
@@ -94,18 +112,13 @@ void SystemWindow::closeEvent(QCloseEvent *event) {
 void SystemWindow::initScrollArea() {
     QScrollArea *scrollArea = new QScrollArea(centralWidget());
     scrollArea->setWidgetResizable(true);
-    scrollArea->setGeometry(80, 150, 450, 300);
+    scrollArea->setGeometry(80, 150, 490, 300);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setStyleSheet(
-        "QScrollArea {"
-        "   border: 1px solid #000000;"
-        "   background-color: #FFFFFF;"
-        "}"
-    );
+    scrollArea->setStyleSheet("QScrollArea { border: 1px solid black; background: transparent; }");
 
     scrollContainer = new QWidget(scrollArea);
-    scrollContainer->setFixedHeight(scrollArea->height() - 20);
+    scrollContainer->setFixedHeight(scrollArea->height() - 10);
     scrollContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     scrollArea->setWidget(scrollContainer);
 
@@ -135,19 +148,32 @@ void SystemWindow::addCard(Habit *habit) {
     habitLabel->setWordWrap(true);
     scrollContainer->layout()->addWidget(habitLabel);
 
-    PushButton *checkinButton = new PushButton("打卡", habitLabel);
-    checkinButton->addStyle("QPushButton{ font: bold 15px; }");
-    checkinButton->setGeometry(20, 210, 50, 25);
-    connect(checkinButton, &QPushButton::clicked, this, [=]() {
-        checkinDialog->show(habit);
-    });
+    QWidget *buttonContainer = new QWidget(habitLabel);
+    buttonContainer->setStyleSheet("background: transparent;");
+    buttonContainer->setGeometry(0, 210, habitLabel->width(), 25);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
+    buttonLayout->setContentsMargins(0, 0, 0, 0);
+    buttonContainer->setLayout(buttonLayout);
+
+    if (habit->canCheckin()) {
+        PushButton *checkinButton = new PushButton("打卡", habitLabel);
+        checkinButton->addStyle("QPushButton{ font: bold 15px; }");
+        checkinButton->setFixedSize(50, 25);
+        connect(checkinButton, &QPushButton::clicked, this, [=]() {
+            checkinDialog->show(habit);
+        });
+        buttonLayout->addWidget(checkinButton);
+    }
+
 
     PushButton *deleteButton = new PushButton("删除", habitLabel);
     deleteButton->addStyle("QPushButton{ font: bold 15px; }");
-    deleteButton->setGeometry(80, 210, 50, 25);
+    deleteButton->setFixedSize(50, 25);
     connect(deleteButton, &QPushButton::clicked, this, [=] {
         deleteDialog->show(habit);
     });
+    buttonLayout->addWidget(deleteButton);
 
     PushButton *infoButton = new PushButton("详情", habitLabel);
     infoButton->addStyle("QPushButton{ font: bold; }");
@@ -219,4 +245,9 @@ void SystemWindow::initDialog() {
         HabitManager::del(habit->getName());
         loadCards();
     });
+
+    if (Date::newWeek()) {
+        WeeklyAchievementDialog *weeklyAchievementDialog = new WeeklyAchievementDialog(this);
+        weeklyAchievementDialog->show();
+    }
 }

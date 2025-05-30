@@ -15,6 +15,8 @@
 
 class SystemWindow : public QMainWindow {
     Q_OBJECT
+
+    Date today = Date::today();
     QWidget *scrollContainer;
     AddDialog *addDialog;
     DeleteDialog *deleteDialog;

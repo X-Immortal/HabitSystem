@@ -3,6 +3,7 @@
 #include "DailyHabit.h"
 #include <iostream>
 #include <filesystem>
+#include <sstream>
 
 using namespace std;
 
@@ -81,12 +82,6 @@ bool HabitManager::checkin(const string &habitName) {
 
 //文件存储
 void HabitManager::save() {
-    filesystem::path path(filePath);
-    error_code ec;
-    if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
-        throw runtime_error("Failed to create directory！");
-    }
-
     ofstream out(filePath);
     if (!out) {
         throw runtime_error("Failed to open file for writing！");
@@ -150,3 +145,23 @@ void HabitManager::load() {
         }
     }
 }
+
+string HabitManager::updateWeek() {
+    if (!Date::newWeek()) {
+        return "";
+    }
+
+    stringstream ss;
+    ss << "<html><p>上周达标任务：";
+    for (Habit *habit: getWeeklyHabits()) {
+        WeeklyHabit *weeklyHabit = dynamic_cast<WeeklyHabit *>(habit);
+        if (weeklyHabit->isCompletedThisWeek()) {
+            ss << "<br/>" << weeklyHabit->updateWeek();
+        } else {
+            weeklyHabit->updateWeek();
+        }
+    }
+    ss << "</p></html>";
+    return ss.str();
+}
+

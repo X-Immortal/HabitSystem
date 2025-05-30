@@ -7,6 +7,8 @@
 #include "PushButton.h"
 
 CheckinDialog::CheckinDialog(QWidget *parent) : InformationDialog(parent) {
+    setWindowTitle("打卡");
+
     QWidget *buttonContainer = new QWidget(scrollContainer);
     buttonContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 

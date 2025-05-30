@@ -16,5 +16,5 @@ int main(int argc, char *argv[]) {
     });
 
     initWindow->show();
-    return app.exec();
+    return QApplication::exec();
 }

@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <QString>
+#include "../tools/Date.h"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ protected:
     string description;
     int target;
     int finishedDays;
+    vector<Date> finishedDates;
 
     Habit();
 
@@ -31,6 +33,10 @@ public:
     [[nodiscard]] int getFinishedDays() const;
 
     [[nodiscard]] bool isCompleted() const;
+
+    [[nodiscard]] bool checkedInToday() const;
+
+    [[nodiscard]] virtual bool canCheckin() const;
 
     virtual ~Habit() = default;
 

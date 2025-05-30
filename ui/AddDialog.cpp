@@ -19,7 +19,7 @@ AddDialog::AddDialog(QWidget *parent) : QDialog(parent) {
 
 void AddDialog::DailyTarget::hide() const {
     assert(targetLabel && targetEdit);
-    targetEdit->clear();
+    targetEdit->setValue(0);
     targetEdit->hide();
     targetLabel->hide();
     prompt->hide();
@@ -33,11 +33,11 @@ void AddDialog::DailyTarget::show() const {
 
 void AddDialog::WeeklyTarget::hide() const {
     assert(targetLabel && targetEdit && frequencyEdit && frequencyLabel);
-    targetEdit->clear();
+    targetEdit->setValue(0);
     targetEdit->hide();
     targetLabel->hide();
     targetPrompt->hide();
-    frequencyEdit->clear();
+    frequencyEdit->setValue(0);
     frequencyEdit->hide();
     frequencyLabel->hide();
     frequencyPrompt->hide();
@@ -196,6 +196,7 @@ void AddDialog::initSpinBox() {
 
     dailyTarget.targetEdit = new QSpinBox(this);
     dailyTarget.targetEdit->setGeometry(150, 370, 70, 30);
+    dailyTarget.targetEdit->setMaximum(INT_MAX);
     dailyTarget.targetEdit->setStyleSheet(
         "QSpinBox {"
         "   background-color: white;"
@@ -237,6 +238,7 @@ void AddDialog::initSpinBox() {
 
     weeklyTarget.targetEdit = new QSpinBox(this);
     weeklyTarget.targetEdit->setGeometry(150, 370, 70, 30);
+    weeklyTarget.targetEdit->setMaximum(INT_MAX);
     weeklyTarget.targetEdit->setStyleSheet(
         "QSpinBox {"
         "   background-color: white;"
@@ -276,6 +278,7 @@ void AddDialog::initSpinBox() {
 
     weeklyTarget.frequencyEdit = new QSpinBox(this);
     weeklyTarget.frequencyEdit->setGeometry(200, 420, 70, 30);
+    weeklyTarget.frequencyEdit->setMaximum(INT_MAX);
     weeklyTarget.frequencyEdit->setStyleSheet(
         "QSpinBox {"
         "   background-color: white;"
@@ -360,7 +363,10 @@ void AddDialog::initButton() {
     PushButton *cancelButton = new PushButton("取消", this);
     cancelButton->setGeometry(300, 470, 80, 20);
     cancelButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(cancelButton, &QPushButton::clicked, this, &AddDialog::close);
+    connect(cancelButton, &QPushButton::clicked, this, [=] {
+        this->close();
+        this->clear();
+    });
 }
 
 void AddDialog::addHabit() {

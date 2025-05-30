@@ -5,18 +5,14 @@
 #ifndef INFOMATIONDIALOG_H
 #define INFOMATIONDIALOG_H
 
-#include <QDialog>
-#include <QLabel>
-
+#include "ScrolledDialog.h"
 #include "../data/Habit.h"
 
-class InformationDialog : public QDialog {
+class InformationDialog : public ScrolledDialog {
     Q_OBJECT
 
 protected:
-    QLabel *infoLabel;
     Habit *habit;
-    QWidget *scrollContainer;
 
 public:
     InformationDialog(QWidget *parent = nullptr);

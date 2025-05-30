@@ -41,6 +41,8 @@ public:
     //打卡习惯
     static bool checkin(const string &habitName);
 
+    static string updateWeek();
+
     //文件存储
     static void save();
 

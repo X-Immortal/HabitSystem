@@ -1,6 +1,6 @@
 #include "Habit.h"
 
-Habit::Habit() {}
+Habit::Habit() : Habit("", "", 0) {}
 
 Habit::Habit(string name, string description, int target) :
 name(name), description(description), target(target), finishedDays(0) {}
@@ -24,3 +24,12 @@ int Habit::getFinishedDays() const {
 bool Habit::isCompleted() const {
     return finishedDays >= target;
 }
+
+bool Habit::checkedInToday() const {
+    return !finishedDates.empty() && finishedDates.back() == Date::today();
+}
+
+bool Habit::canCheckin() const {
+    return !isCompleted() && !checkedInToday();
+}
+

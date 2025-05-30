@@ -3,6 +3,9 @@
 //
 
 #include "DeleteDialog.h"
+
+#include <QHBoxLayout>
+
 #include "PushButton.h"
 #include <QLabel>
 #include <QPushButton>
@@ -33,18 +36,29 @@ void DeleteDialog::initDialog() {
 }
 
 void DeleteDialog::initButton() {
+    QWidget *buttonContainer = new QWidget(this);
+    buttonContainer->setGeometry(0, 60, width(), 25);
+    buttonContainer->setStyleSheet("background: transparent;");
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
+    buttonLayout->setContentsMargins(20, 0, 20, 0);
+    buttonLayout->setSpacing(0);
+    buttonContainer->setLayout(buttonLayout);
+
     PushButton *confirmButton = new PushButton("确定", this);
     confirmButton->addStyle("QPushButton { font-size: 15px; }");
-    confirmButton->setGeometry(45, 60, 60, 25);
+    confirmButton->setFixedSize(60, 25);
     connect(confirmButton, &QPushButton::clicked, this, [=] {
         this->close();
         emit deleteConfirmed(this->habit);
     });
+    buttonLayout->addWidget(confirmButton);
 
     PushButton *cancelButton = new PushButton("取消", this);
     cancelButton->addStyle("QPushButton { font-size: 15px; }");
-    cancelButton->setGeometry(150, 60, 60, 25);
+    cancelButton->setFixedSize(60, 25);
     connect(cancelButton, &QPushButton::clicked, this, [=] {
         this->close();
     });
+    buttonLayout->addWidget(cancelButton);
 }
