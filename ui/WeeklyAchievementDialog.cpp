@@ -6,6 +6,12 @@
 #include "../data/HabitManager.h"
 
 WeeklyAchievementDialog::WeeklyAchievementDialog(QWidget *parent) : ScrolledDialog(parent) {
-    infoLabel->setText(QString::fromStdString(HabitManager::updateWeek()));
+    try {
+        infoLabel->setText(QString::fromStdString(HabitManager::updateWeek()));
+    } catch (runtime_error &e) {
+        if (strcmp(e.what(), "no new week") == 0) {
+            throw;
+        }
+    }
     setAttribute(Qt::WA_DeleteOnClose);
 }

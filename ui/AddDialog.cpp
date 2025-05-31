@@ -338,7 +338,7 @@ void AddDialog::initComboBox() {
     );
     type.prompt->hide();
 
-    connect(type.typeBox, &QComboBox::currentIndexChanged, this, [=](int index) {
+    connect(type.typeBox, &QComboBox::currentIndexChanged, [this](int index) {
         switch (index) {
             case 0:
                 weeklyTarget.hide();
@@ -363,7 +363,7 @@ void AddDialog::initButton() {
     PushButton *cancelButton = new PushButton("取消", this);
     cancelButton->setGeometry(300, 470, 80, 20);
     cancelButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(cancelButton, &QPushButton::clicked, this, [=] {
+    connect(cancelButton, &QPushButton::clicked, [this] {
         this->close();
         this->clear();
     });

@@ -37,7 +37,7 @@ void InitWindow::initButton() {
     PushButton *startButton = new PushButton("进入系统", centralWidget());
     startButton->setGeometry(70, 100, 100, 50);
     startButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(startButton, &PushButton::clicked, this, [=] {
+    connect(startButton, &PushButton::clicked, [this] {
         emit enterSystemRequested();
         this->close();
     });
@@ -45,7 +45,7 @@ void InitWindow::initButton() {
     PushButton *exitButton = new PushButton("关闭", centralWidget());
     exitButton->setGeometry(220, 100, 100, 50);
     exitButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(exitButton, &QPushButton::clicked, this,  [=] {
+    connect(exitButton, &QPushButton::clicked, [this] {
         this->close();
     });
 }

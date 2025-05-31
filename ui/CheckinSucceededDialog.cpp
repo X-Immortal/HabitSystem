@@ -23,7 +23,7 @@ CheckinSucceededDialog::CheckinSucceededDialog(QWidget *parent) : QDialog(parent
     PushButton *okButton = new PushButton("确定", this);
     okButton->addStyle("QPushButton { font-size: 15px; }");
     okButton->setGeometry(90, 60, 60, 25);
-    connect(okButton, &QPushButton::clicked, this, [=] {
+    connect(okButton, &QPushButton::clicked, [this] {
         this->close();
     });
 }

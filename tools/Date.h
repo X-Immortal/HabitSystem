@@ -7,37 +7,34 @@
 
 #include <ctime>
 #include <string>
+#include <QDate>
 
 using namespace std;
 
-class Date {
-    int year;
-    int month;
-    int day;
-    bool modifiable = false;
+class Date : public QDate {
+    static bool modifiable;
+    static QDate m_today;
 
 public:
-    Date();
-
     Date(int y, int m, int d);
+    explicit Date(const QDate &qdate);
 
-    static Date fromTM(const tm &time); //将时间转化为Date
-    static tm toTm(const Date &date);
-    static tm toTm(int year, int month, int day);
     static Date today(); //获取系统当前日期
-    static bool newWeek();
+    static bool newWeek(const Date &date);
 
     string toString() const;
 
     bool operator==(const Date &B) const; //便于后面判断是否已打卡
     bool operator<(const Date &B) const;
 
-    bool canModify() const;
-    void setModifiable(bool modifiable);
+    static bool canModify();
+    static void setModifiable(bool modifiable);
     int getYear() const;
     int getMonth() const;
     int getDay() const;
-    void setDate(int year, int month, int day);
+    static bool setToday(int year, int month, int day);
+    static bool setToday(const QDate &qdate);
+    static void setRealToday();
 
 private:
     Date getFirstDayOfWeek() const;

@@ -48,7 +48,7 @@ void DeleteDialog::initButton() {
     PushButton *confirmButton = new PushButton("确定", this);
     confirmButton->addStyle("QPushButton { font-size: 15px; }");
     confirmButton->setFixedSize(60, 25);
-    connect(confirmButton, &QPushButton::clicked, this, [=] {
+    connect(confirmButton, &QPushButton::clicked, [this] {
         this->close();
         emit deleteConfirmed(this->habit);
     });
@@ -57,7 +57,7 @@ void DeleteDialog::initButton() {
     PushButton *cancelButton = new PushButton("取消", this);
     cancelButton->addStyle("QPushButton { font-size: 15px; }");
     cancelButton->setFixedSize(60, 25);
-    connect(cancelButton, &QPushButton::clicked, this, [=] {
+    connect(cancelButton, &QPushButton::clicked, [this] {
         this->close();
     });
     buttonLayout->addWidget(cancelButton);

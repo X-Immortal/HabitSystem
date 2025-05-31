@@ -7,14 +7,19 @@
 #include <sstream>
 #include "../tools/StringUtil.h"
 
-WeeklyHabit::WeeklyHabit() : frequency(0), finishedWeeks(0), finishedDaysThisWeek(0) {}
+WeeklyHabit::WeeklyHabit() : frequency(0), finishedWeeks(0), finishedDaysThisWeek(0) {
+}
 
-WeeklyHabit::WeeklyHabit(string name, string description, int target, int frequency):
-    Habit(name, description, target), frequency(frequency), finishedWeeks(0), finishedDaysThisWeek(0)
-{}
+WeeklyHabit::WeeklyHabit(string name, string description, int target, int frequency): Habit(name, description, target),
+    frequency(frequency), finishedWeeks(0), finishedDaysThisWeek(0) {
+}
 
 bool WeeklyHabit::isCompletedThisWeek() const {
     return finishedDaysThisWeek >= frequency;
+}
+
+bool WeeklyHabit::isCompleted() const {
+    return finishedWeeks >= target;
 }
 
 bool WeeklyHabit::canCheckin() const {
@@ -22,16 +27,16 @@ bool WeeklyHabit::canCheckin() const {
 }
 
 string WeeklyHabit::updateWeek() {
-    if (Date::newWeek()) {
-        if (isCompletedThisWeek()) {
-            finishedWeeks++;
-            stringstream ss;
-            ss << name << "(" << finishedDaysThisWeek << "/" << frequency << ")";
-            return ss.str();
-        }
-        finishedDaysThisWeek = 0;
+    if (finishedDates.empty() || !Date::newWeek(finishedDates.back())) {
+        throw runtime_error("no new week");
     }
-    return "";
+    stringstream ss;
+
+    if (isCompletedThisWeek()) {
+        ss << name << "(" << ++finishedWeeks << "/" << target << ")";
+    }
+    finishedDaysThisWeek = 0;
+    return ss.str();
 } //检查是否为新的一周，若是，则更新
 
 bool WeeklyHabit::checkin() {
@@ -56,67 +61,67 @@ QString WeeklyHabit::toString() const {
         }
     }
     return QString(
-        "<html>"
-        "   <p>"
-        "       [每日习惯]%1<br/>"
-        "       习惯名称：<br/>%2<br/>"
-        "       习惯描述：<br/>%3<br/>"
-        "       目标周数：%4<br/>"
-        "       目标频率：%5<br/>"
-        "       已完成周数：%6<br/>"
-        "       本周已打卡次数：%7<br/>"
-        "       已打卡天数：%8<br/>"
-        "       历史打卡日期：%9"
-        "   </p>"
-        "</html>"
-        )
-        .arg(
-            isCompleted() ? "(已完成)" : "",
-            name,
-            description,
-            QString::number(target),
-            QString::number(frequency),
-            QString::number(finishedWeeks),
-            QString::number(finishedDaysThisWeek),
-            QString::number(finishedDays),
-            historyDates.str()
-        );
+                "<html>"
+                "   <p>"
+                "       [每日习惯]%1<br/>"
+                "       习惯名称：<br/>%2<br/>"
+                "       习惯描述：<br/>%3<br/>"
+                "       目标周数：%4<br/>"
+                "       目标频率：%5<br/>"
+                "       已完成周数：%6<br/>"
+                "       本周已打卡次数：%7<br/>"
+                "       已打卡天数：%8<br/>"
+                "       历史打卡日期：%9"
+                "   </p>"
+                "</html>"
+            )
+            .arg(
+                isCompleted() ? "(已完成)" : "",
+                name,
+                description,
+                QString::number(target),
+                QString::number(frequency),
+                QString::number(finishedWeeks),
+                QString::number(finishedDaysThisWeek),
+                QString::number(finishedDays),
+                historyDates.str()
+            );
 }
 
 QString WeeklyHabit::toSimpleString() const {
     QString qname = QString::fromUtf8(name.c_str());
     return QString(
-        "<html>"
-        "   <p>"
-        "       [每周习惯]%1<br/>"
-        "       名称：%2<br/>"
-        "       本周进度(天)：%3/%4<br/>"
-        "       总进度(周)：%5/%6<br/>"
-        "       上次打卡日期：%7"
-        "   </p>"
-        "</html>"
-        )
-        .arg(
-            isCompleted() ? "(已完成)" : "",
-            qname.length() > 5 ? qname.left(5) + "..." : qname,
-            QString::number(finishedDaysThisWeek), QString::number(target),
-            QString::number(finishedWeeks), QString::number(target),
-            finishedDates.empty() ? "无" : "<br/>" + finishedDates.back().toString()
-        );
+                "<html>"
+                "   <p>"
+                "       [每周习惯]%1<br/>"
+                "       名称：%2<br/>"
+                "       本周进度(天)：%3/%4<br/>"
+                "       总进度(周)：%5/%6<br/>"
+                "       上次打卡日期：%7"
+                "   </p>"
+                "</html>"
+            )
+            .arg(
+                isCompleted() ? "(已完成)" : "",
+                qname.length() > 5 ? qname.left(5) + "..." : qname,
+                QString::number(finishedDaysThisWeek), QString::number(target),
+                QString::number(finishedWeeks), QString::number(target),
+                finishedDates.empty() ? "无" : "<br/>" + finishedDates.back().toString()
+            );
 }
 
 
 string WeeklyHabit::serialize() {
     stringstream out;
     out << "[WeeklyHabit]" << endl
-        << "name=" << name << endl
-        << "description=" << StringUtil::escape(description) << endl
-        << "target=" << target << endl //目标周数
-        << "frequency=" << frequency << endl //每周目标次数
-        << "finishedWeeks=" << finishedWeeks << endl //已完成打卡周数
-        << "finishedDaysThisWeek=" << finishedDaysThisWeek << endl //当前周打卡天数
-        << "finishedDays=" << finishedDays << endl //总的打卡天数
-        << "[DATES]" << endl;
+            << "name=" << name << endl
+            << "description=" << StringUtil::escape(description) << endl
+            << "target=" << target << endl //目标周数
+            << "frequency=" << frequency << endl //每周目标次数
+            << "finishedWeeks=" << finishedWeeks << endl //已完成打卡周数
+            << "finishedDaysThisWeek=" << finishedDaysThisWeek << endl //当前周打卡天数
+            << "finishedDays=" << finishedDays << endl //总的打卡天数
+            << "[DATES]" << endl;
     for (const Date &date: finishedDates) {
         out << date.getYear() << " " << date.getMonth() << " " << date.getDay() << endl;
     } //已完成记录
@@ -159,7 +164,7 @@ void WeeklyHabit::deserialize(const string &data) {
             finishedWeeks = stoi(v);
         } else if (k == "finishedDaysThisWeek") {
             finishedDaysThisWeek = stoi(v);
-        }else if (k == "finishedDays") {
+        } else if (k == "finishedDays") {
             finishedDays = stoi(v);
         } else {
             throw runtime_error("Invalid data");
@@ -173,7 +178,7 @@ void WeeklyHabit::deserialize(const string &data) {
     }
     sort(finishedDates.begin(), finishedDates.end());
     getline(in, line);
-    if (line != "[END]") {
+    if (line != "[END]" || finishedDaysThisWeek > frequency || finishedWeeks > target) {
         throw runtime_error("Invalid data");
     }
 }

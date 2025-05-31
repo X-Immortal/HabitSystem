@@ -13,7 +13,9 @@ using namespace std;
 class HabitManager {
 private:
     static vector<Habit *> habits;
-    static const string filePath;
+    static string dataPath;
+    static const string setsPath;
+    static bool test;
 
     struct StaticInitializer {
         StaticInitializer();
@@ -23,6 +25,10 @@ private:
     HabitManager() = default;
 
     ~HabitManager();
+
+    static void selectPath();
+    static void saveSets();
+    static void readSets();
 
 public:
     //添加习惯
@@ -47,6 +53,8 @@ public:
     static void save();
 
     static void load();
+
+    static bool isOnTest();
 };
 
 #endif //HABITMANAGER_H

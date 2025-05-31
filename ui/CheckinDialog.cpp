@@ -11,6 +11,7 @@ CheckinDialog::CheckinDialog(QWidget *parent) : InformationDialog(parent) {
 
     QWidget *buttonContainer = new QWidget(scrollContainer);
     buttonContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    buttonContainer->setStyleSheet("background: transparent;");
 
     QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
     buttonLayout->setAlignment(Qt::AlignCenter);
@@ -20,7 +21,7 @@ CheckinDialog::CheckinDialog(QWidget *parent) : InformationDialog(parent) {
     PushButton *confirmButton = new PushButton("打卡", scrollContainer);
     confirmButton->setFixedSize(80, 50);
     confirmButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(confirmButton, &QPushButton::clicked, this, [=] {
+    connect(confirmButton, &QPushButton::clicked, [this] {
         this->close();
         emit checkinConfirmed(habit);
     });
@@ -29,7 +30,7 @@ CheckinDialog::CheckinDialog(QWidget *parent) : InformationDialog(parent) {
     PushButton *cancelButton = new PushButton("取消", scrollContainer);
     cancelButton->setFixedSize(80, 50);
     cancelButton->addStyle("QPushButton { font-size: 20px; }");
-    connect(cancelButton, &QPushButton::clicked, this, [=] {
+    connect(cancelButton, &QPushButton::clicked, [this] {
         this->close();
     });
     buttonLayout->addWidget(cancelButton);

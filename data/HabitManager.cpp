@@ -1,6 +1,7 @@
 #include "HabitManager.h"
 #include "WeeklyHabit.h"
 #include "DailyHabit.h"
+#include "../tools/StringUtil.h"
 #include <iostream>
 #include <filesystem>
 #include <sstream>
@@ -8,12 +9,15 @@
 using namespace std;
 
 #if defined(_WIN32)
-const string HabitManager::filePath = ".\\.file\\habits.txt";
+string HabitManager::dataPath = "..\\.file\\data\\normal\\habits.txt";
+const string HabitManager::setsPath = "..\\.file\\sets\\test.properties";
 #else
-const string HabitManager::filePath = "./.file/habits.txt";
+string HabitManager::filePath = "../.file/data/habits.txt";
+const string HabitManager::setsPath = "../.file/sets/test.properties";
 #endif
 
 vector<Habit *> HabitManager::habits;
+bool HabitManager::test = false;
 
 HabitManager::StaticInitializer HabitManager::initializer;
 
@@ -82,7 +86,15 @@ bool HabitManager::checkin(const string &habitName) {
 
 //文件存储
 void HabitManager::save() {
-    ofstream out(filePath);
+    saveSets();
+    selectPath();
+    error_code ec;
+    filesystem::path fdataPath(dataPath);
+    if (!filesystem::create_directories(fdataPath.parent_path(), ec) && ec) {
+        cerr << "Failed to create directory！" << endl;
+        return;
+    }
+    ofstream out(dataPath);
     if (!out) {
         throw runtime_error("Failed to open file for writing！");
     }
@@ -95,17 +107,19 @@ void HabitManager::save() {
 }
 
 void HabitManager::load() {
-    filesystem::path path(filePath);
+    readSets();
+    selectPath();
     error_code ec;
-    if (!filesystem::create_directories(path.parent_path(), ec) && ec) {
+    filesystem::path fdataPath(dataPath);
+    if (!filesystem::create_directories(fdataPath.parent_path(), ec) && ec) {
         cerr << "Failed to create directory！" << endl;
         return;
     }
 
-    ifstream in(filePath);
+    ifstream in(dataPath);
     if (!in) {
         // 文件不存在时，创建一个空文件
-        ofstream out(filePath);
+        ofstream out(dataPath);
         if (!out) {
             throw runtime_error("Failed to create file!");
         }
@@ -147,21 +161,112 @@ void HabitManager::load() {
 }
 
 string HabitManager::updateWeek() {
-    if (!Date::newWeek()) {
-        return "";
-    }
-
     stringstream ss;
     ss << "<html><p>上周达标任务：";
     for (Habit *habit: getWeeklyHabits()) {
         WeeklyHabit *weeklyHabit = dynamic_cast<WeeklyHabit *>(habit);
-        if (weeklyHabit->isCompletedThisWeek()) {
-            ss << "<br/>" << weeklyHabit->updateWeek();
-        } else {
-            weeklyHabit->updateWeek();
+        try {
+            if (weeklyHabit->isCompletedThisWeek()) {
+                ss << "<br/>" << weeklyHabit->updateWeek();
+            } else {
+                weeklyHabit->updateWeek();
+            }
+        } catch (runtime_error &e) {
+            if (strcmp(e.what(), "no new week") == 0) {
+                throw;
+            }
         }
     }
     ss << "</p></html>";
+    string result = ss.str();
+    if (result == "<html><p>上周达标任务：</p></html>") {
+        return "<html><p>上周无达标任务</p></html>";
+    }
     return ss.str();
 }
 
+void HabitManager::selectPath() {
+    if (Date::canModify()) {
+        dataPath =
+#ifdef _WIN32
+                "..\\.file\\data\\test\\habits.txt";
+#else
+            "../file/data/test/habits.txt";
+#endif
+    } else {
+        dataPath =
+#ifdef _WIN32
+                "..\\.file\\data\\normal\\habits.txt";
+#else
+                "../file/data/normal/habits.txt";
+#endif
+    }
+}
+
+void HabitManager::saveSets() {
+    ofstream out(setsPath);
+    if (!out) {
+        throw runtime_error("Failed to open file for writing！");
+    }
+    out << "test=" << (test ? "true" : "false") << endl << "today=";
+    if (!test) {
+        out << "today";
+        cout << "Sets saved!" << endl;
+        return;
+    }
+    if (Date::canModify()) {
+        Date atoday = Date::today();
+        out << atoday.getYear() << " " << atoday.getMonth() << " " << atoday.getDay();
+    } else {
+        out << "today";
+    }
+    cout << "Sets saved!" << endl;
+}
+
+
+void HabitManager::readSets() {
+    error_code ec;
+    filesystem::path fsetsPath(setsPath);
+    if (!filesystem::create_directories(fsetsPath.parent_path(), ec) && ec) {
+        throw runtime_error("Failed to create directory！");
+    }
+
+    ifstream in(setsPath);
+    if (!in) {
+        // 文件不存在时，创建一个空文件
+        ofstream out(setsPath);
+        if (!out) {
+            throw runtime_error("Failed to create file!");
+        }
+        out << "test=false" << endl << "today=today" << endl;
+        cout << "File created!" << endl;
+        return;
+    }
+
+    stringstream buffer;
+    buffer << in.rdbuf();
+    string line;
+    getline(buffer, line);
+    if (line != "test=true" && line != "test=false") {
+        throw runtime_error("Invalid sets");
+    }
+    if (!(test = line.ends_with("true"))) {
+        return;
+    }
+    getline(buffer, line);
+    vector<string> kv = StringUtil::split(line, '=');
+    if (kv.size() != 2 || kv[0] != "today") {
+        throw runtime_error("Invalid sets");
+    }
+    if (kv[1] != "today") {
+        Date::setModifiable(true);
+        buffer = stringstream(kv[1]);
+        int y, m, d;
+        buffer >> y >> m >> d;
+        Date::setToday(y, m, d);
+    }
+}
+
+bool HabitManager::isOnTest() {
+    return test;
+}

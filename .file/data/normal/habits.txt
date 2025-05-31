@@ -1,0 +1,44 @@
+[DailyHabit]
+name=啊啊啊啊啊啊啊啊
+description=啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
+target=2
+finishedDays=2
+[DATES]
+2025 5 30
+2025 5 31
+[END]
+[DailyHabit]
+name=我的习惯
+description=测试
+target=1
+finishedDays=1
+[DATES]
+2025 5 30
+[END]
+[DailyHabit]
+name=1
+description=1
+target=1
+finishedDays=0
+[DATES]
+[END]
+[WeeklyHabit]
+name=111
+description=222
+target=2
+frequency=2
+finishedWeeks=0
+finishedDaysThisWeek=0
+finishedDays=0
+[DATES]
+[END]
+[WeeklyHabit]
+name=啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
+description=啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
+target=2
+frequency=2
+finishedWeeks=0
+finishedDaysThisWeek=0
+finishedDays=0
+[DATES]
+[END]

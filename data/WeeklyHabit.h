@@ -23,9 +23,11 @@ public:
 
     bool checkin() override;
 
-    bool isCompletedThisWeek() const;
+    [[nodiscard]] bool isCompletedThisWeek() const;
 
-    bool canCheckin() const override;
+    [[nodiscard]] bool isCompleted() const override;
+
+    [[nodiscard]] bool canCheckin() const override;
 
     [[nodiscard]] QString toString() const override;
 

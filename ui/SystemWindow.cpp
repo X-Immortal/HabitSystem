@@ -8,7 +8,6 @@
 #include <QWidget>
 #include <QLabel>
 #include "PushButton.h"
-#include <QDate>
 #include <QScrollArea>
 #include <QSizePolicy>
 #include <QHBoxLayout>
@@ -17,6 +16,7 @@
 #include "AddDialog.h"
 #include "DeleteDialog.h"
 #include "WeeklyAchievementDialog.h"
+#include "../tools/Photo.h"
 
 SystemWindow::SystemWindow(QWidget *parent) : QMainWindow(parent) {
     initWindow();
@@ -32,10 +32,24 @@ void SystemWindow::initWindow() {
     setFixedSize(700, 500);
     setAttribute(Qt::WA_DeleteOnClose);
 
-    QWidget *centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
+    QWidget *parent;
+    if (Photo::hasBackground()) {
+        QLabel *background = new QLabel(this);
+        QPixmap backgroundMap = Photo::getBackground();
+        background->setPixmap(backgroundMap);
+        background->setFixedSize(backgroundMap.size());
+        parent = background;
+    } else {
+        QWidget *backgroundWidget = new QWidget(this);
+        backgroundWidget->setFixedSize(this->width(), this->height());
+        backgroundWidget->setStyleSheet("background: grey;");
+        parent = backgroundWidget;
+    }
+    setCentralWidget(parent);
+
+    QWidget *centralWidget = new QWidget(parent);
     centralWidget->setFixedSize(this->width(), this->height());
-    centralWidget->setStyleSheet("background-color: #e3e3e3;");
+    centralWidget->setStyleSheet("background-color: rgba(255, 255, 255, 0.4);");
 }
 
 void SystemWindow::initText() {
@@ -54,13 +68,20 @@ void SystemWindow::initText() {
     title->setAlignment(Qt::AlignCenter);
     textLayout->addWidget(title);
 
-    QPushButton *nowtime = new QPushButton("今天是" + QString::fromStdString(today.toString()), centralWidget());
+    QPushButton *nowtime = new QPushButton("今天是" + QString::fromStdString(Date::today().toString()), centralWidget());
     nowtime->setStyleSheet("QPushButton { font: 20px; color: black; background: transparent; border: 0px; } QPushButton:hover { background: transparent; }");
     nowtime->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    connect(nowtime, &QPushButton::clicked, this, [=] {
-        cout << "nowtime clicked!" << endl;
+    connect(nowtime, &QPushButton::clicked, [this] {
+        HabitManager::save();
+        dateModifierDialog->show();
+    });
+    connect(dateModifierDialog, &DateModifierDialog::dateModified, [this, nowtime] {
+        nowtime->setText("今天是" + QString::fromStdString(Date::today().toString()));
     });
     textLayout->addWidget(nowtime);
+    if (!HabitManager::isOnTest()) {
+        nowtime->setEnabled(false);
+    }
 }
 
 
@@ -79,7 +100,7 @@ void SystemWindow::initButton() {
     PushButton *allButton = new PushButton("All", centralWidget());
     allButton->addStyle(styleSheet);
     allButton->setFixedSize(80, 80);
-    connect(allButton, &QPushButton::clicked, this, [=]() {
+    connect(allButton, &QPushButton::clicked, [this]() {
         state = ALL;
         loadCards();
     });
@@ -88,7 +109,7 @@ void SystemWindow::initButton() {
     PushButton *dailyButton = new PushButton("Daily", centralWidget());
     dailyButton->addStyle(styleSheet);
     dailyButton->setFixedSize(80, 80);
-    connect(dailyButton, &QPushButton::clicked, this, [=]() {
+    connect(dailyButton, &QPushButton::clicked, [this]() {
         state = DAILY;
         loadCards();
     });
@@ -97,7 +118,7 @@ void SystemWindow::initButton() {
     PushButton *weeklyButton = new PushButton("Weekly", centralWidget());
     weeklyButton->addStyle(styleSheet);
     weeklyButton->setFixedSize(80, 80);
-    connect(weeklyButton, &QPushButton::clicked, this, [=]() {
+    connect(weeklyButton, &QPushButton::clicked, [this]() {
         state = WEEKLY;
         loadCards();
     });
@@ -118,39 +139,55 @@ void SystemWindow::initScrollArea() {
     scrollArea->setStyleSheet("QScrollArea { border: 1px solid black; background: transparent; }");
 
     scrollContainer = new QWidget(scrollArea);
-    scrollContainer->setFixedHeight(scrollArea->height() - 10);
+    scrollContainer->setFixedHeight(scrollArea->height() - 15);
     scrollContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    scrollContainer->setStyleSheet("QWidget { background-color: transparent; }");
     scrollArea->setWidget(scrollContainer);
 
     QHBoxLayout *scrollLayout = new QHBoxLayout(scrollContainer);
-    scrollLayout->setSpacing(20);
+    scrollLayout->setSpacing(45);
     scrollContainer->setLayout(scrollLayout);
 
-    connect(addDialog, &AddDialog::habitAdded, this, [=] {
+    connect(addDialog, &AddDialog::habitAdded, [this] {
         loadCards();
     });
 }
 
 void SystemWindow::addCard(Habit *habit) {
-    QLabel *habitLabel = new QLabel(
-        habit->toSimpleString(),
-        scrollContainer
-    );
+    QWidget *parent;
+    if (Photo::hasPhoto()) {
+        QLabel *photoLabel = new QLabel(scrollContainer);
+        parent = photoLabel;
+        QPixmap photo = Photo::getRandomPhoto();
+        photoLabel->setPixmap(photo);
+        photoLabel->setFixedSize(photo.size());
+        scrollContainer->layout()->addWidget(photoLabel);
+        QHBoxLayout *photoLayout = new QHBoxLayout(photoLabel);
+        photoLayout->setContentsMargins(0, 0, 0, 0);
+        photoLabel->setLayout(photoLayout);
+    } else {
+        QLabel *container = new QLabel(scrollContainer);
+        container->setFixedSize(190, 266);
+        parent = container;
+        QHBoxLayout *containerLayout = new QHBoxLayout(container);
+        containerLayout->setContentsMargins(0, 0, 0, 0);
+    }
+    QLabel *habitLabel = new QLabel(habit->toSimpleString(), parent);
     habitLabel->setStyleSheet(
         "QLabel {"
-        "   font: 15px;"
+        "   font: 20px;"
         "   color: #000000;"
-        "   background: silver;"
+        "   background-color: rgba(255, 255, 255, 0.6);"
         "   border: 1px solid #000000;"
         "}"
     );
-    habitLabel->setFixedSize(150, 250);
+    habitLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     habitLabel->setWordWrap(true);
-    scrollContainer->layout()->addWidget(habitLabel);
+    parent->layout()->addWidget(habitLabel);
 
-    QWidget *buttonContainer = new QWidget(habitLabel);
+    QWidget *buttonContainer = new QWidget(parent);
     buttonContainer->setStyleSheet("background: transparent;");
-    buttonContainer->setGeometry(0, 210, habitLabel->width(), 25);
+    buttonContainer->setGeometry(0, 210, parent->width(), 35);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
@@ -158,9 +195,9 @@ void SystemWindow::addCard(Habit *habit) {
 
     if (habit->canCheckin()) {
         PushButton *checkinButton = new PushButton("打卡", habitLabel);
-        checkinButton->addStyle("QPushButton{ font: bold 15px; }");
-        checkinButton->setFixedSize(50, 25);
-        connect(checkinButton, &QPushButton::clicked, this, [=]() {
+        checkinButton->addStyle("QPushButton{ font: bold 18px; }");
+        checkinButton->setFixedSize(60, 30);
+        connect(checkinButton, &QPushButton::clicked, [this, habit] {
             checkinDialog->show(habit);
         });
         buttonLayout->addWidget(checkinButton);
@@ -168,17 +205,17 @@ void SystemWindow::addCard(Habit *habit) {
 
 
     PushButton *deleteButton = new PushButton("删除", habitLabel);
-    deleteButton->addStyle("QPushButton{ font: bold 15px; }");
-    deleteButton->setFixedSize(50, 25);
-    connect(deleteButton, &QPushButton::clicked, this, [=] {
+    deleteButton->addStyle("QPushButton{ font: bold 18px; }");
+    deleteButton->setFixedSize(60, 30);
+    connect(deleteButton, &QPushButton::clicked, [this, habit] {
         deleteDialog->show(habit);
     });
     buttonLayout->addWidget(deleteButton);
 
-    PushButton *infoButton = new PushButton("详情", habitLabel);
-    infoButton->addStyle("QPushButton{ font: bold; }");
-    infoButton->setGeometry(100, 20, 40, 15);
-    connect(infoButton, &QPushButton::clicked, this, [=]() {
+    PushButton *infoButton = new PushButton("详情", parent);
+    infoButton->addStyle("QPushButton{ font: bold; font-size: 15px; }");
+    infoButton->setGeometry(120, 20, 50, 20);
+    connect(infoButton, &QPushButton::clicked, [this, habit]() {
         informationDialog->show(habit);
     });
 }
@@ -213,18 +250,18 @@ void SystemWindow::loadCards() {
     }
 
     QPushButton *addButton = new QPushButton("+", scrollContainer);
-    addButton->setFixedSize(150, 200);
+    addButton->setFixedSize(190, 266);
     addButton->setStyleSheet(
         "QPushButton {"
         "   font: 90px;"
-        "   color: #000000;"
-        "   background: #1e2f0c;"
+        "   color: #black;"
+        "   background: rgba(255, 192, 203, 0.7);"
         "   border: 1px solid #000000;"
         "   padding: 0px;"
         "   text-align: center;"
         "}"
     );
-    connect(addButton, &QPushButton::clicked, this, [=] {
+    connect(addButton, &QPushButton::clicked, [this] {
         addDialog->show();
     });
     scrollContainer->layout()->addWidget(addButton);
@@ -236,18 +273,34 @@ void SystemWindow::initDialog() {
     informationDialog = new InformationDialog(this);
     checkinDialog = new CheckinDialog(this);
     checkinSucceededDialog = new CheckinSucceededDialog(this);
-    connect(checkinDialog, &CheckinDialog::checkinConfirmed, this, [=](Habit *habit) {
+    if (HabitManager::isOnTest()) {
+        dateModifierDialog = new DateModifierDialog(this);
+        connect(dateModifierDialog, &DateModifierDialog::dateModified, [this] {
+            updateWeek();
+            loadCards();
+        });
+    } else {
+        dateModifierDialog = nullptr;
+    }
+    connect(checkinDialog, &CheckinDialog::checkinConfirmed, [this](Habit *habit) {
         habit->checkin();
         loadCards();
         checkinSucceededDialog->show(habit->isCompleted());
     });
-    connect(deleteDialog, &DeleteDialog::deleteConfirmed, this, [=](Habit *habit) {
+    connect(deleteDialog, &DeleteDialog::deleteConfirmed, [this](Habit *habit) {
         HabitManager::del(habit->getName());
         loadCards();
     });
+    updateWeek();
+}
 
-    if (Date::newWeek()) {
+void SystemWindow::updateWeek() {
+    try {
         WeeklyAchievementDialog *weeklyAchievementDialog = new WeeklyAchievementDialog(this);
         weeklyAchievementDialog->show();
+    } catch ([[maybe_unused]] runtime_error &e) {
+        if (strcmp(e.what(), "no new week") != 0) {
+            throw;
+        }
     }
 }

@@ -32,7 +32,7 @@ public:
 
     [[nodiscard]] int getFinishedDays() const;
 
-    [[nodiscard]] bool isCompleted() const;
+    [[nodiscard]] virtual bool isCompleted() const;
 
     [[nodiscard]] bool checkedInToday() const;
 

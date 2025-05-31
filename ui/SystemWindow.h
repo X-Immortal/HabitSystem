@@ -11,18 +11,19 @@
 #include "InformationDialog.h"
 #include "CheckinDialog.h"
 #include "CheckinSucceededDialog.h"
+#include "DateModifierDialog.h"
 #include "../data/Habit.h"
 
 class SystemWindow : public QMainWindow {
     Q_OBJECT
 
-    Date today = Date::today();
     QWidget *scrollContainer;
     AddDialog *addDialog;
     DeleteDialog *deleteDialog;
     InformationDialog *informationDialog;
     CheckinDialog *checkinDialog;
     CheckinSucceededDialog *checkinSucceededDialog;
+    DateModifierDialog *dateModifierDialog;
     enum State {ALL, DAILY, WEEKLY} state = ALL;
 
 protected:
@@ -40,6 +41,7 @@ private:
     void initDialog();
     void addCard(Habit *habit);
     void clearCards();
+    void updateWeek();
 };
 
 #endif //SYSTEMWINDOW_H

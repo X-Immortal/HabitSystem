@@ -137,7 +137,7 @@ void DailyHabit::deserialize(const string &data) {
     }
     sort(finishedDates.begin(), finishedDates.end());
     getline(in, line);
-    if (line != "[END]") {
+    if (line != "[END]" || finishedDays >  target) {
         throw runtime_error("Invalid data");
     }
 }
