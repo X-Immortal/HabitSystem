@@ -5,17 +5,20 @@
 #include "CheckinDialog.h"
 #include <QHBoxLayout>
 #include "PushButton.h"
+#include <QWidget>
 
 CheckinDialog::CheckinDialog(QWidget *parent) : InformationDialog(parent) {
     setWindowTitle("打卡");
 
     QWidget *buttonContainer = new QWidget(scrollContainer);
-    buttonContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    buttonContainer->setFixedWidth(scrollContainer->width());
+    buttonContainer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     buttonContainer->setStyleSheet("background: transparent;");
+    scrollContainer->layout()->addWidget(buttonContainer);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
     buttonLayout->setAlignment(Qt::AlignCenter);
-    buttonLayout->setSpacing(20);
+    buttonLayout->setSpacing(70);
     buttonContainer->setLayout(buttonLayout);
 
     PushButton *confirmButton = new PushButton("打卡", scrollContainer);

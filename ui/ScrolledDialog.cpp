@@ -4,11 +4,16 @@
 
 #include "ScrolledDialog.h"
 #include "../tools/Photo.h"
+#include "AddDialog.h"
+#include <QApplication>
+#include <QWidget>
+#include <QLabel>
 #include <QScrollArea>
-#include <QVBoxLayout>
+#include <QSizePolicy>
+#include <QHBoxLayout>
 
 ScrolledDialog::ScrolledDialog(QWidget *parent) : QDialog(parent) {
-    setFixedSize(300, 400);
+    setFixedSize(400, 400);
     setStyleSheet("background-color: #e3e3e3;");
 
     if (Photo::hasDialogBackground()) {
@@ -31,7 +36,7 @@ ScrolledDialog::ScrolledDialog(QWidget *parent) : QDialog(parent) {
 
     scrollContainer = new QWidget(scrollArea);
     scrollContainer->setFixedWidth(scrollArea->width() - 15);
-    scrollContainer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    scrollContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     scrollContainer->setStyleSheet("QWidget{background: transparent;}");
     scrollArea->setWidget(scrollContainer);
 
@@ -41,6 +46,7 @@ ScrolledDialog::ScrolledDialog(QWidget *parent) : QDialog(parent) {
 
     infoLabel = new QLabel(scrollContainer);
     infoLabel->setWordWrap(true);
+    infoLabel->setMaximumWidth(scrollContainer->width());
     infoLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     infoLabel->setStyleSheet(
         "QLabel {"
@@ -50,4 +56,6 @@ ScrolledDialog::ScrolledDialog(QWidget *parent) : QDialog(parent) {
         "}"
     );
     scrollLayout->addWidget(infoLabel);
+
+    setWindowModality(Qt::ApplicationModal);
 }

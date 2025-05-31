@@ -11,13 +11,16 @@ using namespace std;
 #if defined(_WIN32)
 string HabitManager::dataPath = "..\\.file\\data\\normal\\habits.txt";
 const string HabitManager::setsPath = "..\\.file\\sets\\test.properties";
+const string HabitManager::lastTimePath = "..\\.file\\data\\normal\\lasttime.txt";
 #else
 string HabitManager::filePath = "../.file/data/habits.txt";
 const string HabitManager::setsPath = "../.file/sets/test.properties";
+const string HabitManager::lastTimePath = "../.file/data/normal/lasttime.txt";
 #endif
 
 vector<Habit *> HabitManager::habits;
 bool HabitManager::test = false;
+Date HabitManager::lastTime = Date::today();
 
 HabitManager::StaticInitializer HabitManager::initializer;
 
@@ -86,7 +89,13 @@ bool HabitManager::checkin(const string &habitName) {
 
 //文件存储
 void HabitManager::save() {
+    lastTime = Date::today();
     saveSets();
+    saveLastTime();
+    saveHabits();
+}
+
+void HabitManager::saveHabits() {
     selectPath();
     error_code ec;
     filesystem::path fdataPath(dataPath);
@@ -106,8 +115,14 @@ void HabitManager::save() {
     cout << "File saved!" << endl;
 }
 
+
 void HabitManager::load() {
     readSets();
+    readLastTime();
+    readHabits();
+}
+
+void HabitManager::readHabits() {
     selectPath();
     error_code ec;
     filesystem::path fdataPath(dataPath);
@@ -159,6 +174,7 @@ void HabitManager::load() {
         }
     }
 }
+
 
 string HabitManager::updateWeek() {
     stringstream ss;
@@ -269,4 +285,49 @@ void HabitManager::readSets() {
 
 bool HabitManager::isOnTest() {
     return test;
+}
+
+void HabitManager::readLastTime() {
+    if (Date::canModify()) {
+        lastTime = Date::today();
+    } else {
+        error_code ec;
+        filesystem::path fsetsPath(lastTimePath);
+        if (!filesystem::create_directories(fsetsPath.parent_path(), ec) && ec) {
+            throw runtime_error("Failed to create directory！");
+        }
+
+        ifstream in(lastTimePath);
+        if (!in) {
+            // 文件不存在时，创建一个空文件
+            ofstream out(setsPath);
+            if (!out) {
+                throw runtime_error("Failed to create file!");
+            }
+            Date atoday = Date::today();
+            out << atoday.getYear() << " " << atoday.getMonth() << " " << atoday.getDay() << endl;
+            cout << "File created!" << endl;
+            return;
+        }
+
+        int y, m, d;
+        in >> y >> m >> d;
+        lastTime = Date(y, m, d);
+    }
+}
+
+void HabitManager::saveLastTime() {
+    if (Date::canModify()) {
+        return;
+    }
+    ofstream out(lastTimePath);
+    if (!out) {
+        throw runtime_error("Failed to open file for writing！");
+    }
+    out << lastTime.getYear() << " " << lastTime.getMonth() << " " << lastTime.getDay();
+    cout << "Last time saved!" << endl;
+}
+
+Date HabitManager::getLastTime() {
+    return lastTime;
 }

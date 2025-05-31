@@ -85,6 +85,8 @@ private:
     void addHabit();
 
     void clear();
+
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif //ADDDIALOG_H

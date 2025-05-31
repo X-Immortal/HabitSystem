@@ -15,7 +15,9 @@ private:
     static vector<Habit *> habits;
     static string dataPath;
     static const string setsPath;
+    static const string lastTimePath;
     static bool test;
+    static Date lastTime;
 
     struct StaticInitializer {
         StaticInitializer();
@@ -29,6 +31,9 @@ private:
     static void selectPath();
     static void saveSets();
     static void readSets();
+    static void saveHabits();
+    static void readLastTime();
+    static void saveLastTime();
 
 public:
     //添加习惯
@@ -55,6 +60,10 @@ public:
     static void load();
 
     static bool isOnTest();
+
+    static Date getLastTime();
+
+    static void readHabits();
 };
 
 #endif //HABITMANAGER_H

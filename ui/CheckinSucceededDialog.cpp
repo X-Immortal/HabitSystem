@@ -10,6 +10,7 @@ CheckinSucceededDialog::CheckinSucceededDialog(QWidget *parent) : QDialog(parent
     setWindowTitle("提示");
     setFixedSize(250, 100);
     setStyleSheet("background-color: #e3e3e3;");
+    setWindowModality(Qt::ApplicationModal);
 
     prompt = new QLabel(this);
     prompt->setGeometry(30, 10, 200, 50);

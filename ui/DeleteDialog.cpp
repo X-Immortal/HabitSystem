@@ -24,6 +24,7 @@ void DeleteDialog::initDialog() {
     setWindowTitle("提示");
     setFixedSize(250, 100);
     setStyleSheet("background-color: #e3e3e3;");
+    setWindowModality(Qt::ApplicationModal);
 
     QLabel *prompt = new QLabel("确定要删除该习惯吗？", this);
     prompt->setGeometry(30, 10, 200, 50);

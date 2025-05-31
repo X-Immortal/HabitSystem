@@ -56,6 +56,7 @@ void DateModifierDialog::initDialog() {
     setWindowTitle("日期修改器");
     setFixedSize(320, 220);
     setStyleSheet("background-color: #e3e3e3;");
+    setWindowModality(Qt::ApplicationModal);
 }
 
 void DateModifierDialog::initSlider() {

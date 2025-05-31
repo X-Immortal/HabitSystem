@@ -5,6 +5,8 @@
 #include "WeeklyHabit.h"
 #include <iostream>
 #include <sstream>
+
+#include "HabitManager.h"
 #include "../tools/StringUtil.h"
 
 WeeklyHabit::WeeklyHabit() : frequency(0), finishedWeeks(0), finishedDaysThisWeek(0) {
@@ -27,7 +29,7 @@ bool WeeklyHabit::canCheckin() const {
 }
 
 string WeeklyHabit::updateWeek() {
-    if (finishedDates.empty() || !Date::newWeek(finishedDates.back())) {
+    if (finishedDates.empty() || !Date::newWeek(HabitManager::getLastTime())) {
         throw runtime_error("no new week");
     }
     stringstream ss;
@@ -174,7 +176,13 @@ void WeeklyHabit::deserialize(const string &data) {
         int y, m, d;
         in >> y >> m >> d;
         in.ignore();
-        finishedDates.push_back(Date(y, m, d));
+        Date date(y, m, d);
+        if (HabitManager::getLastTime() < date) {
+            cerr << HabitManager::getLastTime().getYear() << " " << HabitManager::getLastTime().getMonth() << " " << HabitManager::getLastTime().getDay() << endl;
+            cerr << date.getYear() << " " << date.getMonth() << " " << date.getDay() << endl;
+            throw runtime_error("Invalid data");
+        }
+        finishedDates.push_back(date);
     }
     sort(finishedDates.begin(), finishedDates.end());
     getline(in, line);

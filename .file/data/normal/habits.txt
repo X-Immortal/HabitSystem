@@ -29,8 +29,9 @@ target=2
 frequency=2
 finishedWeeks=0
 finishedDaysThisWeek=0
-finishedDays=0
+finishedDays=1
 [DATES]
+2025 6 1
 [END]
 [WeeklyHabit]
 name=啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
@@ -39,6 +40,13 @@ target=2
 frequency=2
 finishedWeeks=0
 finishedDaysThisWeek=0
+finishedDays=0
+[DATES]
+[END]
+[DailyHabit]
+name=111
+description=不不不不不不不不不叭叭叭巴巴爸爸巴巴爸爸巴巴爸爸巴巴爸爸巴巴爸爸啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
+target=1
 finishedDays=0
 [DATES]
 [END]

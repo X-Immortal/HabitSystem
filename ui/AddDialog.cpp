@@ -111,6 +111,7 @@ void AddDialog::initDialog() {
     this->setWindowTitle("添加习惯");
     this->setFixedSize(400, 500);
     this->setStyleSheet("background-color: #e3e3e3;");
+    setWindowModality(Qt::ApplicationModal);
 }
 
 void AddDialog::initEdit() {
@@ -352,20 +353,33 @@ void AddDialog::initComboBox() {
                 break;
         }
     });
+
+    connect(dynamic_cast<SystemWindow *>(parent()), &SystemWindow::showAddDialogRequested, [this](SystemWindow::State state) {
+        switch (state) {
+            case SystemWindow::DAILY:
+                type.typeBox->setCurrentIndex(0);
+                break;
+            case SystemWindow::WEEKLY:
+                type.typeBox->setCurrentIndex(1);
+                break;
+            default:
+                break;
+        }
+        show();
+    });
 }
 
 void AddDialog::initButton() {
     PushButton *confirmButton = new PushButton("确定", this);
-    confirmButton->setGeometry(200, 470, 80, 20);
+    confirmButton->setGeometry(200, 470, 80, 25);
     confirmButton->addStyle("QPushButton { font-size: 20px; }");
     connect(confirmButton, &QPushButton::clicked, this, &addHabit);
 
     PushButton *cancelButton = new PushButton("取消", this);
-    cancelButton->setGeometry(300, 470, 80, 20);
+    cancelButton->setGeometry(300, 470, 80, 25);
     cancelButton->addStyle("QPushButton { font-size: 20px; }");
     connect(cancelButton, &QPushButton::clicked, [this] {
         this->close();
-        this->clear();
     });
 }
 
@@ -400,4 +414,9 @@ void AddDialog::clear() {
     this->dailyTarget.hide();
     this->weeklyTarget.hide();
     this->type.typeBox->setCurrentIndex(-1);
+}
+
+void AddDialog::closeEvent(QCloseEvent *event) {
+    close();
+    clear();
 }

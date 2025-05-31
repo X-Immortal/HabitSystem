@@ -17,6 +17,10 @@
 class SystemWindow : public QMainWindow {
     Q_OBJECT
 
+public:
+    enum State {ALL, DAILY, WEEKLY};
+
+private:
     QWidget *scrollContainer;
     AddDialog *addDialog;
     DeleteDialog *deleteDialog;
@@ -24,7 +28,7 @@ class SystemWindow : public QMainWindow {
     CheckinDialog *checkinDialog;
     CheckinSucceededDialog *checkinSucceededDialog;
     DateModifierDialog *dateModifierDialog;
-    enum State {ALL, DAILY, WEEKLY} state = ALL;
+    State state = ALL;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -32,6 +36,9 @@ protected:
 public:
     explicit SystemWindow(QWidget *parent = nullptr);
     void loadCards();
+
+signals:
+    void showAddDialogRequested(State state);
 
 private:
     void initWindow();

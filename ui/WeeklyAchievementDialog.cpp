@@ -6,6 +6,7 @@
 #include "../data/HabitManager.h"
 
 WeeklyAchievementDialog::WeeklyAchievementDialog(QWidget *parent) : ScrolledDialog(parent) {
+    setWindowTitle("本周成就");
     try {
         infoLabel->setText(QString::fromStdString(HabitManager::updateWeek()));
     } catch (runtime_error &e) {
@@ -14,4 +15,5 @@ WeeklyAchievementDialog::WeeklyAchievementDialog(QWidget *parent) : ScrolledDial
         }
     }
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowModality(Qt::ApplicationModal);
 }

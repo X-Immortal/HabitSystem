@@ -11,7 +11,7 @@ class CheckinDialog : public InformationDialog {
     Q_OBJECT
 
 public:
-    CheckinDialog(QWidget *parent = nullptr);
+    explicit CheckinDialog(QWidget *parent = nullptr);
 
 signals:
     void checkinConfirmed(Habit *habit);

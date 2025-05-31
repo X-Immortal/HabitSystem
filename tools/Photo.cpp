@@ -22,6 +22,7 @@ string Photo::filePath = "../.file/photos/photopath.txt";
 vector<QPixmap> Photo::photos;
 vector<QPixmap> Photo::backgrounds;
 vector<QPixmap> Photo::dialogBackgrounds;
+vector<QIcon> Photo::windowIcons;
 
 void Photo::loadPhotos() {
     if (hasPhoto() && hasBackground()) {
@@ -45,11 +46,14 @@ void Photo::loadPhotos() {
             loadPhotos(photos, ss);
         } else if (line == "[DIALOG-BACKGROUND]") {
             loadPhotos(dialogBackgrounds, ss);
+        } else if (line == "[WINDOW-ICON]") {
+            loadPhotos(windowIcons, ss);
         }
     }
 }
 
-void Photo::loadPhotos(vector<QPixmap> &container, stringstream &in) {
+template<typename T>
+void Photo::loadPhotos(vector<T> &container, stringstream &in) {
     string line;
     while (getline(in, line)) {
         if (line.empty()) {
@@ -58,11 +62,19 @@ void Photo::loadPhotos(vector<QPixmap> &container, stringstream &in) {
         if (line == "[END]") {
             return;
         }
-        QPixmap pixmap = QPixmap(QString::fromStdString(line));
-        if (pixmap.isNull()) {
-            continue;
+        T elem(QString::fromStdString(line));
+        if constexpr (is_same_v<T, QPixmap>) {
+            if (elem.isNull()) {
+                continue;
+            }
+
         }
-        container.push_back(pixmap);
+        if constexpr (is_same_v<T, QIcon>) {
+            if (elem.availableSizes().isEmpty()) {
+                continue;
+            }
+        }
+        container.push_back(elem);
     }
 }
 
@@ -111,6 +123,20 @@ QPixmap Photo::getDialogBackground() {
     return dialogBackgrounds[getRandom(0, getDialogBackgroundNumber() - 1)];
 }
 
+bool Photo::hasWindowIcon() {
+    return !windowIcons.empty();
+}
 
+int Photo::getWindowIconNumber() {
+    return windowIcons.size();
+}
 
+ QIcon Photo::getWindowIcon() {
+    if (!hasWindowIcon()) {
+        throw runtime_error("Invalid window icon");
+    }
+    return windowIcons[getRandom(0, getWindowIconNumber() - 1)];
+}
 
+template void Photo::loadPhotos<QPixmap>(vector<QPixmap>&, stringstream&);
+template void Photo::loadPhotos<QIcon>(vector<QIcon>&, stringstream&);

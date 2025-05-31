@@ -254,7 +254,7 @@ void SystemWindow::loadCards() {
     addButton->setStyleSheet(
         "QPushButton {"
         "   font: 90px;"
-        "   color: #black;"
+        "   color: orange;"
         "   background: rgba(255, 192, 203, 0.7);"
         "   border: 1px solid #000000;"
         "   padding: 0px;"
@@ -262,7 +262,7 @@ void SystemWindow::loadCards() {
         "}"
     );
     connect(addButton, &QPushButton::clicked, [this] {
-        addDialog->show();
+        emit showAddDialogRequested(state);
     });
     scrollContainer->layout()->addWidget(addButton);
 }
@@ -276,6 +276,9 @@ void SystemWindow::initDialog() {
     if (HabitManager::isOnTest()) {
         dateModifierDialog = new DateModifierDialog(this);
         connect(dateModifierDialog, &DateModifierDialog::dateModified, [this] {
+            if (!Date::canModify()) {
+                HabitManager::readHabits();
+            }
             updateWeek();
             loadCards();
         });
