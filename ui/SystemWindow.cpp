@@ -171,6 +171,7 @@ void SystemWindow::addCard(Habit *habit) {
         parent = container;
         QHBoxLayout *containerLayout = new QHBoxLayout(container);
         containerLayout->setContentsMargins(0, 0, 0, 0);
+        scrollContainer->layout()->addWidget(container);
     }
     QLabel *habitLabel = new QLabel(habit->toSimpleString(), parent);
     habitLabel->setStyleSheet(

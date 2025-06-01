@@ -83,7 +83,6 @@ bool HabitManager::checkin(const string &habitName) {
             return habit->checkin();
         }
     }
-    cout << "Habit not found！" << endl;
     return false;
 }
 

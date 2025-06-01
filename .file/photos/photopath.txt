@@ -7,6 +7,7 @@
 ..\.file\photos\小爽.jpg
 ..\.file\photos\小焰.jpg
 ..\.file\photos\杏子.jpg
+..\.file\photos\小起.jpg
 [END]
 [DIALOG-BACKGROUND]
 ..\.file\photos\小忍小背景.jpg
